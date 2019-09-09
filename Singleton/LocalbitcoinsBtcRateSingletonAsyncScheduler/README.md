@@ -1,0 +1,1 @@
+## Singleton сервис асинхронной плановой задачи для получения localbitcoins.net -> [/buy-bitcoins-online/{payment_method}/.json](https://localbitcoins.net/api-docs/)
