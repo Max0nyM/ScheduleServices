@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Electrum-JSONRPC\Electrum-JSONRPC.csproj" />
+    <ProjectReference Include="..\AbstractAsyncScheduler\AbstractAsyncScheduler.csproj" />
+  </ItemGroup>
+
+</Project>
