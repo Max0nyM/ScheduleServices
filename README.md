@@ -1,5 +1,5 @@
 # ScheduleServices
-Семейство сервисов для подключения моих служб в решения: ASP.Net Core 2.2
+Семейство сервисов для подключения служб в решения: ASP.Net Core 2.2
 
 Набор (Scoped и Singleton) сервисов для интеграции в сторонние решения LocalBitcoins, Electrum JSON/RPC и TelegramBot служб.
 
