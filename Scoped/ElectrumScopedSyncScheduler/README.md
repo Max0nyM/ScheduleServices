@@ -1,0 +1,1 @@
+## Electrum JSON RPC Scoped service

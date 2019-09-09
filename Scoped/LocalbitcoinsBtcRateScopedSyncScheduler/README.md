@@ -1,0 +1,1 @@
+## Scoped LocalBitcoins BTC rates Service
