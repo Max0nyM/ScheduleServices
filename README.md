@@ -11,5 +11,5 @@ driver is done. readme in progress
 ## Electrum JSON/RPC
 driver ed ...
 
-## LocalBitcoins TelegramBot
+## TelegramBot
 driver ed ...
