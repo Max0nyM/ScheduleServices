@@ -25,7 +25,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         /// Значение должно быть разумным на столько что бы из текущих предложений на локале можно было легко найти подходящее.
         /// Исходя из этого ограничения приложение будет искать подходящие предложения именно под эту сумму
         /// </summary>
-        public int SumFilter { get; private set; } = 1500;
+        public int SumFilter { get; private set; } = 5000;
 
         /// <summary>
         /// Ограничение для отбора предложений биржи по минимальной репутации трейдера.
@@ -42,26 +42,25 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         /// <summary>
         /// Код метода оплаты
         /// </summary>
-        public string PaymentMethod { get; private set; }
+        public string PaymentMethod { get; set; } = "qiwi";
 
         /// <summary>
         /// Доступные/Актуальные методы оплаты
         /// </summary>
         public Dictionary<string, string> PaymentMethods = new Dictionary<string, string>();
 
-        public LocalbitcoinsBtcRateSingletonAsyncScheduleService(ILoggerFactory loggerFactory, string set_payment_method = "qiwi") : base(loggerFactory)
+        public LocalbitcoinsBtcRateSingletonAsyncScheduleService(ILoggerFactory loggerFactory) : base(loggerFactory)
         {
             /// <summary>
             /// Пауза в секундах между обновлениями данных с сервера
             /// </summary>
-            SchedulePausePeriod = 60 * 30;
-
-            PaymentMethod = set_payment_method.ToLower();
+            SchedulePausePeriod = 90 * 30;
+                        
             string msg_text = "Инициализация " + GetType().Name;
             SetStatus(msg_text);
             AppLogger.LogInformation(msg_text);
             lb_api = new LocalBitcoins_API("auth key", "auth secret");
-            
+
             AppLogger.LogInformation(msg_text);
             UpdatePaymentMethodsAsync();
         }
@@ -131,7 +130,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                 AppLogger.LogError(msg_text);
 
                 msg_text = "response body:" + lb_api.api_raw.responsebody;
-                SetStatus( msg_text, StatusTypes.ErrorStatus);
+                SetStatus(msg_text, StatusTypes.ErrorStatus);
                 AppLogger.LogError(msg_text);
 
                 msg_text = "http request status:" + lb_api.api_raw.HttpRequestStatus;
@@ -217,7 +216,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
             }
         }
 
-        public new void InvokeAsyncSchedule()
+        public override void InvokeAsyncSchedule()
         {
             if (PaymentMethods is null || PaymentMethods.Count() == 0)
             {

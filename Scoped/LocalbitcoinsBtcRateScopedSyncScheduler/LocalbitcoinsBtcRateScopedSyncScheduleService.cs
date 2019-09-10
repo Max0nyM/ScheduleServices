@@ -65,8 +65,8 @@ namespace LocalbitcoinsBtcRateScopedSyncScheduler
                 }
                 AsyncScheduleService.RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>();
             }
-            if (AsyncScheduleService.LastChangeStatusDateTime.AddSeconds(AsyncScheduleService.SchedulePausePeriod) < DateTime.Now)
-                AsyncScheduleService.InvokeAsyncSchedule();
+            //if (AsyncScheduleService.LastChangeStatusDateTime.AddSeconds(AsyncScheduleService.SchedulePausePeriod) < DateTime.Now)
+            //    AsyncScheduleService.InvokeAsyncSchedule();
         }
     }
 }

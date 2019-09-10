@@ -43,11 +43,12 @@ namespace AbstractAsyncScheduler
             get
             {
                 DateTime max_date = DateTime.MinValue;
+                if (TracertChangeStatus.Count() > 0)
+                    lock (TracertChangeStatus)
+                    {
+                        max_date = TracertChangeStatus.Max(x => x.DateCreate);
+                    }
 
-                lock (TracertChangeStatus)
-                {
-                    max_date = TracertChangeStatus.Max(x => x.DateCreate);
-                }
 
                 return max_date;
             }
@@ -135,8 +136,11 @@ namespace AbstractAsyncScheduler
         {
             await Task.Run(() =>
             {
-                InvokeAsyncSchedule();
-                System.Threading.Thread.Sleep(1000 * SchedulePausePeriod);
+                while (true)
+                {
+                    InvokeAsyncSchedule();
+                    System.Threading.Thread.Sleep(1000 * SchedulePausePeriod);
+                }
             });
         }
 
@@ -163,7 +167,7 @@ namespace AbstractAsyncScheduler
             });
         }
 
-        public void InvokeAsyncSchedule()
+        public virtual void InvokeAsyncSchedule()
         {
             // Время не настало
             if (LastChangeStatusDateTime.AddSeconds(SchedulePausePeriod) > DateTime.Now)
