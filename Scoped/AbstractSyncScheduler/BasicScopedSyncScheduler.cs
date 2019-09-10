@@ -18,7 +18,11 @@ namespace AbstractSyncScheduler
             BasicSingletonService = set_basic_singleton_service;
 
             if (IsReady)
+            {
+                BasicSingletonService.SetStatus("Запуск sync scoped service");
                 UpdateDataBase();
+                BasicSingletonService.SetStatus(null);
+            }
         }
 
         /// <summary>
