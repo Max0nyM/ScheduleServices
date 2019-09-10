@@ -1,4 +1,10 @@
 ## abstract base Scheduler
 
 Базовый функционал для асинхронных Singleton сервисов.
-- https://github.com/badhitman/ScheduleServices/blob/master/Singleton/AbstractAsyncScheduler/BasicSingletonAsyncScheduler.cs#L19
+
+Асинхронные сервисы:
+- [Electrum](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/ElectrumSingletonAsyncSheduler)
+- [LocalBitcoins](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/LocalbitcoinsBtcRateSingletonAsyncScheduler)
+- [TelegramBot](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/TelegramBotSingletonAsyncSheduler)
+
+наследуются от этого Singleton сервиса.
