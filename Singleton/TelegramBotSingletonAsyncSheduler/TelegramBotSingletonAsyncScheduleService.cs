@@ -7,7 +7,8 @@ namespace TelegramBotSingletonAsyncSheduler
     {
         public string TelegramBotApiKey { get; set; }
 
-        public TelegramBotSingletonAsyncScheduleService(ILoggerFactory loggerFactory, string set_telegram_bot_api_key) : base(loggerFactory)
+        public TelegramBotSingletonAsyncScheduleService(ILoggerFactory set_logger_factory, string set_telegram_bot_api_key, int set_schedule_pause_period) 
+            : base(set_logger_factory, set_schedule_pause_period)
         {
 
         }

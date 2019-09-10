@@ -18,12 +18,12 @@ namespace AbstractAsyncScheduler
         /// <summary>
         /// Максимальный размер стека трассировки статуса планировщика
         /// </summary>
-        public int MaximumSizeSchedulerStatusTraceStack { get; private set; } = 100;
+        public int MaximumSizeSchedulerStatusTraceStack { get; private set; } = 100; // максимальный размер хранилища логов 100 строк
 
         /// <summary>
         /// Максимальный срок хранения (в секундах) записи в стеке трассировки статуса планировщика
         /// </summary>
-        public int MaximumLifetimeSchedulerStatusTrace { get; private set; } = 60 * 1000;
+        public int MaximumLifetimeSchedulerStatusTrace { get; private set; } = 60 * 60 * 3; // максимальный срок хранения логов 3 часа
 
         /// <summary>
         /// Паузы между выполнениями команды. Будет считаться с момента перехода планировщика в режим готовности
@@ -146,8 +146,9 @@ namespace AbstractAsyncScheduler
 
         protected ILogger AppLogger { get; set; }
 
-        public BasicSingletonScheduler(ILoggerFactory loggerFactory)
+        public BasicSingletonScheduler(ILoggerFactory loggerFactory, int set_schedule_pause_period)
         {
+            SchedulePausePeriod = set_schedule_pause_period;
             AppLogger = loggerFactory.CreateLogger(GetType().Name + "Logger");
             IntervalHandling();
         }

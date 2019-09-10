@@ -49,17 +49,13 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         /// </summary>
         public Dictionary<string, string> PaymentMethods = new Dictionary<string, string>();
 
-        public LocalbitcoinsBtcRateSingletonAsyncScheduleService(ILoggerFactory loggerFactory) : base(loggerFactory)
+        public LocalbitcoinsBtcRateSingletonAsyncScheduleService(ILoggerFactory set_logger_factory, int set_schedule_pause_period, string set_local_bitcoins_api_auth_key, string set_auth_secret)
+            : base(set_logger_factory, set_schedule_pause_period)
         {
-            /// <summary>
-            /// Пауза в секундах между обновлениями данных с сервера
-            /// </summary>
-            SchedulePausePeriod = 90 * 30;
-                        
             string msg_text = "Инициализация " + GetType().Name;
             SetStatus(msg_text);
             AppLogger.LogInformation(msg_text);
-            lb_api = new LocalBitcoins_API("auth key", "auth secret");
+            lb_api = new LocalBitcoins_API(set_local_bitcoins_api_auth_key, set_auth_secret);
 
             AppLogger.LogInformation(msg_text);
             UpdatePaymentMethodsAsync();

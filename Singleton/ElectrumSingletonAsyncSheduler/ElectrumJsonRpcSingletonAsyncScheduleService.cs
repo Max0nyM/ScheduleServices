@@ -10,7 +10,8 @@ namespace ElectrumSingletonAsyncSheduler
         public string JsonRpcServerAddress { get; set; }
         public int JsonRpcServerPort { get; set; }
 
-        public ElectrumJsonRpcSingletonAsyncScheduleService(ILoggerFactory loggerFactory, string set_json_rpc_username, string set_json_rpc_password, string set_json_rpc_server_address, int set_json_rpc_server_port) : base(loggerFactory)
+        public ElectrumJsonRpcSingletonAsyncScheduleService(ILoggerFactory set_logger_factory, string set_json_rpc_username, string set_json_rpc_password, string set_json_rpc_server_address, int set_json_rpc_server_port, int set_schedule_pause_period) 
+            : base(set_logger_factory, set_schedule_pause_period)
         {
             JsonRpcUsername = set_json_rpc_username;
             JsonRpcPassword = set_json_rpc_password;
