@@ -1,2 +1,2 @@
-## Singleton сервис асинхронной плановой задачи для получения TelegramBot-> [Updates](https://core.telegram.org/bots/api#getting-updates)
-порт
+## Singleton СЃРµСЂРІРёСЃ Р°СЃРёРЅС…СЂРѕРЅРЅРѕР№ РїР»Р°РЅРѕРІРѕР№ Р·Р°РґР°С‡Рё РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ TelegramBot-> [Updates](https://core.telegram.org/bots/api#getting-updates)
+РїРѕСЂС‚
