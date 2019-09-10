@@ -8,16 +8,20 @@ namespace LocalbitcoinsBtcRateScopedSyncScheduler
 {
     public class LocalbitcoinsBtcRateScopedSyncScheduleService : BasicScopedSyncScheduler
     {
-        public LocalbitcoinsBtcRateSingletonAsyncScheduleService AsyncLocalbitcoinsBtcRateScheduleService { get; private set; }
+        public LocalbitcoinsBtcRateSingletonAsyncScheduleService AsyncLocalbitcoinsBtcRateScheduleService => (LocalbitcoinsBtcRateSingletonAsyncScheduleService)BasicSingletonService;
+
+        public override bool IsReady => 
+            AsyncLocalbitcoinsBtcRateScheduleService.PaymentMethods != null &&
+            AsyncLocalbitcoinsBtcRateScheduleService.PaymentMethods.Count > 0 &&
+            AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC.Count > 0 && 
+            base.IsReady;
 
         public LocalbitcoinsBtcRateScopedSyncScheduleService(DbContext set_db, LocalbitcoinsBtcRateSingletonAsyncScheduleService set_async_localbitcoins_btc_rate_schedule_service)
-            : base(set_db)
+            : base(set_db, set_async_localbitcoins_btc_rate_schedule_service)
         {
-            AsyncLocalbitcoinsBtcRateScheduleService = set_async_localbitcoins_btc_rate_schedule_service;
-
-            lock (AsyncLocalbitcoinsBtcRateScheduleService)
+            lock (BasicSingletonService)
             {
-                if (AsyncLocalbitcoinsBtcRateScheduleService.SchedulerIsReady && AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC.Count > 0)
+                if (IsReady)
                     UpdateDataBase();
             }
         }

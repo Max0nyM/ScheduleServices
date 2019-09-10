@@ -8,7 +8,8 @@ namespace TelegramBotScopedSyncScheduler
     {
         public TelegramBotSingletonAsyncScheduleService AsyncTelegramBotScheduleService { get; private set; }
 
-        public TelegramBotScopedSyncScheduleService(DbContext set_db, TelegramBotSingletonAsyncScheduleService set_async_telegram_bot_schedule_service) : base(set_db)
+        public TelegramBotScopedSyncScheduleService(DbContext set_db, TelegramBotSingletonAsyncScheduleService set_async_telegram_bot_schedule_service) 
+            : base(set_db, set_async_telegram_bot_schedule_service)
         {
             AsyncTelegramBotScheduleService = set_async_telegram_bot_schedule_service;
 
