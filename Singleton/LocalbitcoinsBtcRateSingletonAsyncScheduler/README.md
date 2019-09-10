@@ -1,4 +1,4 @@
-## Async Singleton Service - для определения акутального аргументированого курса BTC по данным [LocalBitcoins.net.](http://localbitcoins.net)
+## Async Singleton Service - для определения акутального аргументированого курса BTC основываясь [https://localbitcoins.net/api-docs/](https://localbitcoins.net/api-docs/)
 
 Готовый асинхронный сервис для получения актуального (аргументированого) курса биткоина.
 
