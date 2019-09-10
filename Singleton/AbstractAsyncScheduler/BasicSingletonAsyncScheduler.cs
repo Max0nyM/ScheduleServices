@@ -14,6 +14,11 @@ namespace AbstractAsyncScheduler
         #region настройки/состояние планировщика
 
         /// <summary>
+        /// Максимальный размер транзитных данных
+        /// </summary>
+        public int MaxSizeTransit { get; protected set; } = 50;
+
+        /// <summary>
         /// Разрешённая длительность (в секундах) планировщику на выполнение задачи
         /// </summary>
         public int TimeoutBusySchedule { get; private set; } = 5;
@@ -124,7 +129,7 @@ namespace AbstractAsyncScheduler
                     AppLogger.LogError(new_status);
                     break;
                 default:
-                    AppLogger.LogCritical("Тип статуса ["+ StatusType.ToString() + "] за пределами доступных значений: " + new_status);
+                    AppLogger.LogCritical("Тип статуса [" + StatusType.ToString() + "] за пределами доступных значений: " + new_status);
                     break;
             }
 
@@ -180,8 +185,15 @@ namespace AbstractAsyncScheduler
             SetStatus("Запуск плановой асинхронной операции [" + GetType().FullName + "]");
             await Task.Run(() =>
             {
-                AsyncScheduleAction();
-                SetStatus("Окончание плановой асинхронной операции");
+                try
+                {
+                    AsyncScheduleAction();
+                    SetStatus("Окончание плановой асинхронной операции");
+                }
+                catch (Exception e)
+                {
+                    SetStatus("Выполнение асинхронной задачи завершилось ошибкой: " + e.Message);
+                }
                 SetStatus(null);
             });
         }
