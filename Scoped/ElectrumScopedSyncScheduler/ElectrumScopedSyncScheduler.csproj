@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Singleton\ElectrumSingletonAsyncSheduler\ElectrumSingletonAsyncSheduler.csproj" />
+    <ProjectReference Include="..\AbstractSyncScheduler\AbstractSyncScheduler.csproj" />
   </ItemGroup>
 
 </Project>

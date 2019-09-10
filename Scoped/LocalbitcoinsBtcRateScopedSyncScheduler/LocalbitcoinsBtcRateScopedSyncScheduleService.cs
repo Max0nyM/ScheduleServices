@@ -1,32 +1,32 @@
-﻿using LocalbitcoinsBtcRateSingletonAsyncScheduler;
+﻿using AbstractSyncScheduler;
+using LocalbitcoinsBtcRateSingletonAsyncScheduler;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Concurrent;
 using System.Linq;
 
 namespace LocalbitcoinsBtcRateScopedSyncScheduler
 {
-    public class LocalbitcoinsBtcRateScopedSyncScheduleService
+    public class LocalbitcoinsBtcRateScopedSyncScheduleService : BasicScopedSyncScheduler
     {
-        public LocalbitcoinsBtcRateSingletonAsyncScheduleService AsyncScheduleService { get; private set; }
-        DbContext db;
+        public LocalbitcoinsBtcRateSingletonAsyncScheduleService AsyncLocalbitcoinsBtcRateScheduleService { get; private set; }
 
-        public LocalbitcoinsBtcRateScopedSyncScheduleService(DbContext set_db, LocalbitcoinsBtcRateSingletonAsyncScheduleService singletonAsyncScheduleService)
+        public LocalbitcoinsBtcRateScopedSyncScheduleService(DbContext set_db, LocalbitcoinsBtcRateSingletonAsyncScheduleService set_async_localbitcoins_btc_rate_schedule_service)
+            : base(set_db)
         {
-            AsyncScheduleService = singletonAsyncScheduleService;
-            db = set_db;
-            lock (AsyncScheduleService)
+            AsyncLocalbitcoinsBtcRateScheduleService = set_async_localbitcoins_btc_rate_schedule_service;
+
+            lock (AsyncLocalbitcoinsBtcRateScheduleService)
             {
-                if (AsyncScheduleService.SchedulerIsReady && AsyncScheduleService.RatesBTC.Count > 0)
-                    WriteBtcRates();
+                if (AsyncLocalbitcoinsBtcRateScheduleService.SchedulerIsReady && AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC.Count > 0)
+                    UpdateDataBase();
             }
         }
 
-        public void WriteBtcRates()
+        public override void UpdateDataBase()
         {
-            lock (AsyncScheduleService.RatesBTC)
+            lock (AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC)
             {
-                foreach (BtcRateLocalbitcoinsModel btcRate in AsyncScheduleService.RatesBTC.OrderBy(x=>x.DateCreate))
+                foreach (BtcRateLocalbitcoinsModel btcRate in AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC.OrderBy(x => x.DateCreate))
                 {
                     #region fantom error
                     // Каким то хером (core 2.2) тут возникает иногда фантомная ошибка.
@@ -63,7 +63,7 @@ namespace LocalbitcoinsBtcRateScopedSyncScheduler
                     db.Add(btcRate);
                     db.SaveChanges();
                 }
-                AsyncScheduleService.RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>();
+                AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>();
             }
             //if (AsyncScheduleService.LastChangeStatusDateTime.AddSeconds(AsyncScheduleService.SchedulePausePeriod) < DateTime.Now)
             //    AsyncScheduleService.InvokeAsyncSchedule();

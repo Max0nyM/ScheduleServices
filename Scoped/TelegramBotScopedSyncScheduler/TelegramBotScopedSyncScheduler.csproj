@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Singleton\TelegramBotSingletonAsyncSheduler\TelegramBotSingletonAsyncSheduler.csproj" />
+    <ProjectReference Include="..\AbstractSyncScheduler\AbstractSyncScheduler.csproj" />
   </ItemGroup>
 
 </Project>
