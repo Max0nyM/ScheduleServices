@@ -2,7 +2,7 @@
 
 Реализует перенос данных из транзитного хранилища в Async Singleton Service в базу данных.
 
-Для внедрения контекста scoped сервиса базы данных вашего приложения - вопервых данный тип следует обернуть в свойм проекте
+Для внедрения контекста базы данных (в данном контексте _Scoped_ _Service_ **AppDbContext set_db**) вашего приложения - вопервых данный сервис-тип прийдётся обернуть в:
 
 ```C#
 public class MyLocalbitcoinsBtcRateScopedSyncScheduleService : LocalbitcoinsBtcRateScopedSyncScheduleService
@@ -16,7 +16,7 @@ public class MyLocalbitcoinsBtcRateScopedSyncScheduleService : LocalbitcoinsBtcR
 ```
 Это даст доступ к контексту вашей базы данных, но это ещё не всё
 
-Во вторых для иньекции зависимости от LocalBitcoins Singleton Service прийдётся обернуть в:
+Во вторых обратите внимание, что для иньекции зависимости от LocalBitcoins Singleton Service пришлось обернуть в:
 ```C#
 public class MyLocalbitcoinsBtcRateSingletonAsyncScheduleService : LocalbitcoinsBtcRateSingletonAsyncScheduleService
 {
@@ -27,3 +27,21 @@ public class MyLocalbitcoinsBtcRateSingletonAsyncScheduleService : Localbitcoins
 	}
 }
 ```
+
+Пример добавления сервисов:
+```C#
+public static class ServiceProviderExtensions
+{
+	public static void AddLocalbitcoinsBtcRatesService(this IServiceCollection services)
+	{
+		services.AddSingleton<MyLocalbitcoinsBtcRateSingletonAsyncScheduleService>();
+		services.AddScoped<MyLocalbitcoinsBtcRateScopedSyncScheduleService>();
+	}
+}
+```
+
+И последнее: теперь необходимо обеспечить регулярный вызов какого либо middleware с внедрённым в него нашего LocalBitcoins Scoped Service, что бы транзит данных не заставивался.
+
+Предлагается обеспечить пинг сервера с паузой например в 1 сикунду - чем гарантировать регулярность обработки транзитных данных из Singleton в Scoped и так в базу данных
+
+> **P.S.** Если данный Scoped Sync Service не нужен, то Singleton Async Service может внедряться без обёртки
