@@ -8,8 +8,8 @@ Singleton сервисы асинхронно опрашивают сервис�
 ## [LocalBitcoins](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/LocalbitcoinsBtcRateSingletonAsyncScheduler) [Singleton](https://github.com/badhitman/ScheduleServices/tree/master/Singleton)+[Scoped](https://github.com/badhitman/ScheduleServices/tree/master/Scoped)
 driver is done. readme in progress
 
-## Electrum JSON/RPC
+## TelegramBot
 driver ed ...
 
-## TelegramBot
+## Electrum JSON/RPC
 driver ed ...
