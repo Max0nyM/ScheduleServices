@@ -10,7 +10,7 @@
 наследуются от этого Singleton сервиса.
 
 - [x] таймаут на выполнение операции `TimeoutBusySchedule` (по умолчинию 5 секунд). Можно пере-назначить в наследуемых сервисах или во время выполнения программы через внедрённый Singleton сервис.
-- [x] сервис ведёт подробный лог работы. Регистрируется каждую смену статуса методом `SetStatus()`. Достп к логам сервиса открыт (`ConcurrentBag<TracertItemModel> TracertChangeStatus`). Размер и срок хранения трассировки определяются в параметрах `MaximumSizeSchedulerStatusTraceStack` и `MaximumLifetimeSchedulerStatusTrace`
+- [x] сервис ведёт подробный лог работы в `ConcurrentBag<TracertItemModel> TracertChangeStatus`. Регистрируется каждая смена статуса методом `SetStatus()` (время изменения, и типа статуса: обычный статус или регистрациия ошибки). Размер и срок хранения трассировки определяются в параметрах `MaximumSizeSchedulerStatusTraceStack` (по умолчанию хранится не более 100 последнх строк/статусов) и `MaximumLifetimeSchedulerStatusTrace` (по умолчанию хранится не более 3 часов)
 - [x] вспомогательные поля `SchedulerIsReady`, `LastChangeStatusDateTime` и `StartChangeStatusDateTime`
 - [x] настройка в секундах паузы между повторами асинхронных операций `SchedulePausePeriod`. Наследуемый сервис обязан определить свой период, но его можно менять и во время работы
 - [x] активное поле `ScheduleStatus`. Хранит текущее состояние планировщика задач, но если состояние не null и зависло более чем на `TimeoutBusySchedule`, то автоматически сбрасывается на null. Статус null в свою очередь сообщает через `SchedulerIsReady` что сервис свободен.
