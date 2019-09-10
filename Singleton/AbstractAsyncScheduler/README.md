@@ -1,4 +1,4 @@
-## abstract base Scheduler
+## abstract base Singleton Service (aka Scheduler)
 
 Базовый функционал для асинхронных Singleton сервисов.
 
