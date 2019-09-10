@@ -1,9 +1,9 @@
-## Async Singleton Service - для определения акутального аргументированого курса BTC
+## Async Singleton Service - для определения акутального аргументированого курса BTC по данным [LocalBitcoins.net.](http://localbitcoins.net)
 
 Готовый асинхронный сервис для получения актуального (аргументированого) курса биткоина.
 
 - используется официальный API биржи localbitcoins.net (публичная его часть) без использования api-auth-key или api-auth-secret
-- в зависимости от настроек сервис анализирует нужный срез публичных данных биржи [LocalBitcoins.net.](http://localbitcoins.net)
+- в зависимости от настроек сервис анализирует нужный срез публичных данных биржи
 - с каждой итерацией асинхронной операции - транзитные данны накапливаются в `public ConcurrentBag<BtcRateLocalbitcoinsModel> RatesBTC`
 - максимальный размер хранимых данных ограничиваются параметром `MaxSizeTransit`
 - хранимые объекты `BtcRateLocalbitcoinsModel` наследуются от `MetadataEntityModel.RootEntityModel` (=> кроме всег опрочего в нём определено свойство `public int Id { get; set; }` атрибутом `[DatabaseGenerated(DatabaseGeneratedOption.Identity)]`) и соответсвенно тип пригоден для определения таблицы базы данных `public DbSet<BtcRateLocalbitcoinsModel> BtcRatesLocalbitcoins { get; set; }`
