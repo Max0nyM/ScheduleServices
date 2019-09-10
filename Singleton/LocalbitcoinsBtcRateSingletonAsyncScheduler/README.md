@@ -4,7 +4,7 @@
 В зависимости от настроек сервис анализирует нужный срез публичных данных биржи [LocalBitcoins.net.](http://localbitcoins.net)
 Позволяет иметь информацию о реальном курсе биткоина. Можно настроить сумму среднего чека и метода оплаты. Таким образом определяется реальный курс по которому можно прямо сейчас купить на данной бирже.
 
-- с каждой итерацией асинхронной операции - транзитные данны накапливаются в `public ConcurrentBag<BtcRateLocalbitcoinsModel> RatesBTC`. Размер этих данных ограничиваются параметром `MaxSizeTransit`.
+- с каждой итерацией асинхронной операции - транзитные данны накапливаются в `public ConcurrentBag<BtcRateLocalbitcoinsModel> RatesBTC`. Максимальный размер хранимых данных ограничиваются параметром `MaxSizeTransit`.
 - хранимые объекты `BtcRateLocalbitcoinsModel` наследуются от `MetadataEntityModel.RootEntityModel` и соответсвенно этот тип пригоден для определения таблицы базы данных `public DbSet<BtcRateLocalbitcoinsModel> BtcRatesLocalbitcoins { get; set; }`
 - простота последующего извлечение данных и записи их в базу данных в scoped сервисе-адаптере
 
