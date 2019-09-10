@@ -1,6 +1,6 @@
 ## abstract base Singleton Service (aka Scheduler)
 
-Базовый функционал для асинхронных Singleton сервисов.
+Базовый функционал для асинхронных Singleton сервисов. Можно внедрять прямо в проект (если не требуется запись в БД) или через Scoped сервисы-адапторы
 
 Асинхронные сервисы:
 - [Electrum](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/ElectrumSingletonAsyncSheduler)
