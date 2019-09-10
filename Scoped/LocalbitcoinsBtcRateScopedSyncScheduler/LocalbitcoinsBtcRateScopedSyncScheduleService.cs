@@ -1,4 +1,7 @@
-﻿using AbstractSyncScheduler;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov
+////////////////////////////////////////////////
+using AbstractSyncScheduler;
 using LocalbitcoinsBtcRateSingletonAsyncScheduler;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
@@ -28,6 +31,7 @@ namespace LocalbitcoinsBtcRateScopedSyncScheduler
 
         public override void UpdateDataBase()
         {
+            AsyncLocalbitcoinsBtcRateScheduleService.SetStatus("Вызов scoped сервиса для записи данных в БД");
             lock (AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC)
             {
                 foreach (BtcRateLocalbitcoinsModel btcRate in AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC.OrderBy(x => x.DateCreate))
@@ -66,11 +70,13 @@ namespace LocalbitcoinsBtcRateScopedSyncScheduler
 
                     db.Add(btcRate);
                     db.SaveChanges();
+                    AsyncLocalbitcoinsBtcRateScheduleService.SetStatus("Загружается снимок состояния: " + btcRate.ToString());
                 }
                 AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>();
             }
             //if (AsyncScheduleService.LastChangeStatusDateTime.AddSeconds(AsyncScheduleService.SchedulePausePeriod) < DateTime.Now)
             //    AsyncScheduleService.InvokeAsyncSchedule();
+            AsyncLocalbitcoinsBtcRateScheduleService.SetStatus(null);
         }
     }
 }

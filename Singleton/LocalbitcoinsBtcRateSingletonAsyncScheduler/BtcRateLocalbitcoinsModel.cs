@@ -1,4 +1,7 @@
-﻿namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov
+////////////////////////////////////////////////
+namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
 {
     public class BtcRateLocalbitcoinsModel : MetadataEntityModel.RootEntityModel
     {

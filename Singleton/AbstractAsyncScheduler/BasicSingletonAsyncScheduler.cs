@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov
+////////////////////////////////////////////////
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -48,7 +51,6 @@ namespace AbstractAsyncScheduler
                     {
                         max_date = TracertChangeStatus.Max(x => x.DateCreate);
                     }
-
 
                 return max_date;
             }
@@ -108,7 +110,23 @@ namespace AbstractAsyncScheduler
         public void SetStatus(string new_status, StatusTypes StatusType = StatusTypes.SetValueStatus)
         {
             if (string.IsNullOrWhiteSpace(new_status) && string.IsNullOrWhiteSpace(protected_Status))
+            {
+                AppLogger.LogTrace("Попытка установить статус null на null. Проигнорировано.");
                 return;
+            }
+
+            switch (StatusType)
+            {
+                case StatusTypes.SetValueStatus:
+                    AppLogger.LogWarning(new_status);
+                    break;
+                case StatusTypes.ErrorStatus:
+                    AppLogger.LogError(new_status);
+                    break;
+                default:
+                    AppLogger.LogCritical("Тип статуса ["+ StatusType.ToString() + "] за пределами доступных значений: " + new_status);
+                    break;
+            }
 
             protected_Status = new_status;
             lock (TracertChangeStatus)
@@ -144,7 +162,7 @@ namespace AbstractAsyncScheduler
             });
         }
 
-        protected ILogger AppLogger { get; set; }
+        private ILogger AppLogger { get; set; }
 
         public BasicSingletonScheduler(ILoggerFactory loggerFactory, int set_schedule_pause_period)
         {
@@ -189,9 +207,7 @@ namespace AbstractAsyncScheduler
             }
             catch (Exception e)
             {
-                string err_msg = "Ошибка выполнения асинхронной операции планировщика: " + e.Message;
-                SetStatus(err_msg, StatusTypes.ErrorStatus);
-                AppLogger.LogError(err_msg);
+                SetStatus("Ошибка выполнения асинхронной операции планировщика: " + e.Message, StatusTypes.ErrorStatus);
                 SetStatus(null);
             }
         }

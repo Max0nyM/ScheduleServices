@@ -1,4 +1,7 @@
-﻿using AbstractSyncScheduler;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov
+////////////////////////////////////////////////
+using AbstractSyncScheduler;
 using Microsoft.EntityFrameworkCore;
 using TelegramBotSingletonAsyncSheduler;
 

@@ -1,4 +1,7 @@
-﻿using AbstractAsyncScheduler;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov
+////////////////////////////////////////////////
+using AbstractAsyncScheduler;
 using LocalBitcoinsAPI;
 using LocalBitcoinsAPI.Classes.lb_Serialize;
 using Microsoft.Extensions.Logging;
@@ -52,12 +55,9 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         public LocalbitcoinsBtcRateSingletonAsyncScheduleService(ILoggerFactory set_logger_factory, int set_schedule_pause_period, string set_local_bitcoins_api_auth_key, string set_auth_secret)
             : base(set_logger_factory, set_schedule_pause_period)
         {
-            string msg_text = "Инициализация " + GetType().Name;
-            SetStatus(msg_text);
-            AppLogger.LogInformation(msg_text);
+            SetStatus("Инициализация " + GetType().Name);
             lb_api = new LocalBitcoins_API(set_local_bitcoins_api_auth_key, set_auth_secret);
 
-            AppLogger.LogInformation(msg_text);
             UpdatePaymentMethodsAsync();
         }
 
@@ -65,29 +65,19 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         {
             await Task.Run(() =>
             {
-                string msg_text = "Загрузка доступных методов оплаты: " + GetType().Name;
-                AppLogger.LogInformation(msg_text);
-                SetStatus(msg_text);
+                SetStatus("Загрузка доступных методов оплаты: " + GetType().Name);
                 Dictionary<string, PaymentMethodsSerializationClass> raw_PaymentMethods = lb_api.PaymentMethods();
                 if (raw_PaymentMethods is null)
                 {
-                    msg_text = "Ошибка загрузки методов оплаты. lb_api.PaymentMethods() вернул NULL";
-                    SetStatus(msg_text, StatusTypes.ErrorStatus);
-                    AppLogger.LogError(msg_text);
+                    SetStatus("Ошибка загрузки методов оплаты. lb_api.PaymentMethods() вернул NULL", StatusTypes.ErrorStatus);
                     SetStatus(null);
                     return;
                 }
                 if (raw_PaymentMethods.Count() > 0)
-                {
-                    msg_text = "lb_api.PaymentMethods() вернул [" + raw_PaymentMethods.Count() + "] объектов";
-                    SetStatus(msg_text);
-                    AppLogger.LogInformation(msg_text);
-                }
+                    SetStatus("lb_api.PaymentMethods() вернул [" + raw_PaymentMethods.Count() + "] объектов");
                 else
                 {
-                    msg_text = "Ошибка! lb_api.PaymentMethods() вернул [0] объектов";
-                    SetStatus(msg_text, StatusTypes.ErrorStatus);
-                    AppLogger.LogError(msg_text);
+                    SetStatus("Ошибка! lb_api.PaymentMethods() вернул [0] объектов", StatusTypes.ErrorStatus);
                     SetStatus(null);
                     return;
                 }
@@ -95,15 +85,12 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
 
                 if (raw_PaymentMethods.Count() == 0)
                 {
-                    msg_text = "Ошибка! После отбора методов по валюте RUB, осталось [0] объектов";
-                    SetStatus(msg_text, StatusTypes.ErrorStatus);
-                    AppLogger.LogError(msg_text);
+                    SetStatus("Ошибка! После отбора методов по валюте RUB, осталось [0] объектов", StatusTypes.ErrorStatus);
                     SetStatus(null);
                     return;
                 }
-                msg_text = "После отбора методов по валюте RUB, осталось [" + raw_PaymentMethods.Count() + "] объектов";
-                SetStatus(msg_text);
-                AppLogger.LogInformation(msg_text);
+                SetStatus("После отбора методов по валюте RUB, осталось [" + raw_PaymentMethods.Count() + "] объектов");
+
                 PaymentMethods = raw_PaymentMethods.ToDictionary(x => x.Value.code, y => y.Value.name);
                 AsyncScheduleAction();
             });
@@ -114,24 +101,16 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         /// </summary>
         protected override void AsyncScheduleAction()
         {
-            string msg_text = "Запрос к API-LocalBitcoins (не-авторизованый)";
-            SetStatus(msg_text);
-            AppLogger.LogDebug(msg_text);
+            SetStatus("Запрос к API-LocalBitcoins (не-авторизованый)");
 
             AdListBitcoinsOnlineSerializationClass adListBitcoins = lb_api.BuyBitcoinsOnline(null, null, "rub", PaymentMethod);
             if (adListBitcoins == null)
             {
-                msg_text = "Ошибка получения данных с сервера API";
-                SetStatus(msg_text, StatusTypes.ErrorStatus);
-                AppLogger.LogError(msg_text);
+                SetStatus("Ошибка получения данных с сервера API", StatusTypes.ErrorStatus);
 
-                msg_text = "response body:" + lb_api.api_raw.responsebody;
-                SetStatus(msg_text, StatusTypes.ErrorStatus);
-                AppLogger.LogError(msg_text);
+                SetStatus("response body:" + lb_api.api_raw.responsebody, StatusTypes.ErrorStatus);
 
-                msg_text = "http request status:" + lb_api.api_raw.HttpRequestStatus;
-                SetStatus(msg_text, StatusTypes.ErrorStatus);
-                AppLogger.LogError(msg_text);
+                SetStatus("http request status:" + lb_api.api_raw.HttpRequestStatus, StatusTypes.ErrorStatus);
 
                 SetStatus(null);
                 return;
@@ -149,38 +128,28 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                     adListBitcoins = lb_api.BuyBitcoinsOnline(null, null, null, null, pagination_next);
                     if (adListBitcoins is null)
                     {
-                        msg_text = "Ошибка получения данных от сервера";
-                        SetStatus(msg_text, StatusTypes.ErrorStatus);
-                        AppLogger.LogError(msg_text);
+                        SetStatus("Ошибка получения данных от сервера", StatusTypes.ErrorStatus);
 
                         string HttpRequestStatus = lb_api.api_raw.HttpRequestStatus;
-                        msg_text = "HttpRequestStatus: " + HttpRequestStatus;
-                        SetStatus(msg_text, StatusTypes.ErrorStatus);
-                        AppLogger.LogError(msg_text);
+
+                        SetStatus("HttpRequestStatus: " + HttpRequestStatus, StatusTypes.ErrorStatus);
 
                         string responsebody = lb_api.api_raw.responsebody;
-                        msg_text = "ResponseBody: " + responsebody;
-                        SetStatus(msg_text, StatusTypes.ErrorStatus);
-                        AppLogger.LogError(msg_text);
 
-                        msg_text = "Ещё одна попытка...";
-                        SetStatus(msg_text);
-                        AppLogger.LogTrace(msg_text);
+                        SetStatus("ResponseBody: " + responsebody, StatusTypes.ErrorStatus);
+
+                        SetStatus("Ещё одна попытка...");
 
                         continue;
                     }
 
-                    msg_text = "Получено [" + adListBitcoins.data.ad_list.Count() + "] объявлений";
-                    SetStatus(msg_text);
-                    AppLogger.LogInformation(msg_text);
+                    SetStatus("Получено [" + adListBitcoins.data.ad_list.Count() + "] объявлений");
 
                     pagination_next = adListBitcoins.pagination?.next;
                     IEnumerable<AdListItem> ie_ads = adListBitcoins.data.ad_list.Where(x => x.data.get_min_amount_as_double() <= SumFilter && x.data.profile.feedback_score >= FilterProfileFeedbackScore && x.data.get_temp_price() > 0);
                     if (ie_ads != null)
                     {
-                        msg_text = "После применения фильтров к объявлениям осталось [" + ie_ads.Count() + "] объявлений";
-                        SetStatus(msg_text);
-                        AppLogger.LogInformation(msg_text);
+                        SetStatus("После применения фильтров к объявлениям осталось [" + ie_ads.Count() + "] объявлений");
 
                         buy_bitcoin_online.AddRange(ie_ads.ToList());
                     }
@@ -188,9 +157,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
 
                 if (buy_bitcoin_online.Count() == 0)
                 {
-                    msg_text = "Ошибка получения курса. Ни одного предложения.";
-                    AppLogger.LogError(msg_text);
-                    SetStatus(msg_text, StatusTypes.ErrorStatus);
+                    SetStatus("Ошибка получения курса. Ни одного предложения.", StatusTypes.ErrorStatus);
                     SetStatus(null);
                     return;
                 }
@@ -201,12 +168,11 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                     btcRate.MaxRate = Math.Max(btcRate.MaxRate, ad_item.data.get_temp_price());
                     btcRate.MinRate = Math.Min(btcRate.MinRate, ad_item.data.get_temp_price());
                 }
-                msg_text = "Сформирован снимок состояния Localbitcoins AdList";
-                AppLogger.LogWarning(msg_text);
-                SetStatus(msg_text);
 
                 RatesBTC.Add(btcRate);
                 SetStatus(null);
+
+                SetStatus("В памяти хранится информация Localbitcoins RatesBTC[" + RatesBTC.Count + "]");
 
                 CurrentBtcRate = (btcRate.MaxRate + btcRate.MinRate) / 2;
             }

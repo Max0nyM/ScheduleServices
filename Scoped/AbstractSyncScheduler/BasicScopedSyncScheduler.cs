@@ -1,4 +1,7 @@
-﻿using AbstractAsyncScheduler;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov
+////////////////////////////////////////////////
+using AbstractAsyncScheduler;
 using Microsoft.EntityFrameworkCore;
 
 namespace AbstractSyncScheduler
