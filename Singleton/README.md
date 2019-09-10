@@ -4,7 +4,7 @@
 
 - [x] **LocalbitcoinsBtcRateSingletonAsyncScheduler**: _async_ _singleton_ сервис опроса публичного api от LocalBitcoins для определения актуального аргументированого (по сумме чека и методу оплаты) курса BTC
 - [ ] **_ElectrumSingletonAsyncSheduler_**: _async_ _singleton_ сервис взаимодействия с Electrum JSONRPC
-- [ ] **_TelegramBotSingletonAsyncSheduler_**: _async_ _singleton_ сервис подключения сервиса TelegramBot
+- [ ] **_TelegramBotSingletonAsyncSheduler_**: _async_ _singleton_ сервис подключения "API TelegramBot"
 
 Предполагается, что наследуемые от `AbstractAsyncScheduler` сервисы должны соостветсвовать следующим утверждениям:
 - сервисы выполняют некоторые асинхронные операции в фоне
