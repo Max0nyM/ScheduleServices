@@ -170,6 +170,10 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                 }
 
                 RatesBTC.Add(btcRate);
+                RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>(RatesBTC.OrderBy(x=>x.DateCreate));
+                if(MaxSizeTransit< RatesBTC.Count)
+                    RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>(RatesBTC.Skip(RatesBTC.Count - MaxSizeTransit));
+                // public ConcurrentBag<BtcRateLocalbitcoinsModel> RatesBTC
                 SetStatus(null);
 
                 SetStatus("В памяти хранится информация Localbitcoins RatesBTC[" + RatesBTC.Count + "]");
