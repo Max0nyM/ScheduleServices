@@ -176,9 +176,10 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                 // public ConcurrentBag<BtcRateLocalbitcoinsModel> RatesBTC
                 SetStatus(null);
 
-                SetStatus("В памяти хранится информация Localbitcoins RatesBTC[" + RatesBTC.Count + "]");
+                SetStatus("В памяти зафиксирована информация Localbitcoins RatesBTC[" + RatesBTC.Count + "]");
 
                 CurrentBtcRate = (btcRate.MaxRate + btcRate.MinRate) / 2;
+                SetStatus(null);
             }
         }
 
