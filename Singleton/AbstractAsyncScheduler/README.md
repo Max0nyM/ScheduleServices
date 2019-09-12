@@ -3,8 +3,8 @@
 Базовый функционал для асинхронных Singleton сервисов. Можно внедрять прямо в проект (если не требуется запись в БД) или через Scoped сервисы-адапторы
 
 Асинхронные сервисы:
-- [Electrum](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/ElectrumSingletonAsyncSheduler) **BETA version**
-- [LocalBitcoins](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/LocalbitcoinsBtcRateSingletonAsyncScheduler) **TEST version**
+- [LocalBitcoins](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/LocalbitcoinsBtcRateSingletonAsyncScheduler) **beta version**
+- [Electrum](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/ElectrumSingletonAsyncSheduler) **TEST version**
 - [TelegramBot](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/TelegramBotSingletonAsyncSheduler) **TEST version**
 
 наследуются от этого Singleton сервиса.
