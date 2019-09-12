@@ -5,11 +5,11 @@
 
 Singleton сервисы асинхронно опрашивают сервисы (LocalBitcoins, Electrum JSON/RPC и TelegramBot) в [транзитные хранилища], а Scoped сервисы пишут данные из этих [хранилищ] в EF.Core базу.
 
-## LocalBitcoins Singleton+Scoped
-driver is done. readme in progress
+## LocalBitcoins [Singleton](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/LocalbitcoinsBtcRateSingletonAsyncScheduler)+[Scoped](https://github.com/badhitman/ScheduleServices/tree/master/Scoped/LocalbitcoinsBtcRateScopedSyncScheduler)
+driver beta version. readme in progress
 
-## TelegramBot
-driver ed ...
+## TelegramBot [Singleton](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/TelegramBotSingletonAsyncSheduler)+[Scoped](https://github.com/badhitman/ScheduleServices/tree/master/Scoped/TelegramBotScopedSyncScheduler)
+driver test version ...
 
-## Electrum JSON/RPC
-driver ed ...
+## Electrum JSON/RPC  [Singleton](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/ElectrumSingletonAsyncSheduler)+[Scoped](https://github.com/badhitman/ScheduleServices/tree/master/Scoped/ElectrumScopedSyncScheduler)
+driver test version ...

@@ -14,8 +14,8 @@ namespace LocalbitcoinsBtcRateScopedSyncScheduler
         public LocalbitcoinsBtcRateSingletonAsyncScheduleService AsyncLocalbitcoinsBtcRateScheduleService => (LocalbitcoinsBtcRateSingletonAsyncScheduleService)BasicSingletonService;
 
         public override bool IsReady => 
-            AsyncLocalbitcoinsBtcRateScheduleService.PaymentMethods != null &&
-            AsyncLocalbitcoinsBtcRateScheduleService.PaymentMethods.Count > 0 &&
+            AsyncLocalbitcoinsBtcRateScheduleService.AllowedPaymentMethods != null &&
+            AsyncLocalbitcoinsBtcRateScheduleService.AllowedPaymentMethods.Count > 0 &&
             AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC.Count > 0 && 
             base.IsReady;
 

@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\MultiTool\MultiTool.csproj" />
     <ProjectReference Include="..\..\Singleton\ElectrumSingletonAsyncSheduler\ElectrumSingletonAsyncSheduler.csproj" />
     <ProjectReference Include="..\AbstractSyncScheduler\AbstractSyncScheduler.csproj" />
   </ItemGroup>

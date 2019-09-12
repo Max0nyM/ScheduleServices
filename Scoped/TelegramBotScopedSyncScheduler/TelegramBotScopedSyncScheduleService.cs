@@ -16,7 +16,6 @@ namespace TelegramBotScopedSyncScheduler
         {
             AsyncTelegramBotScheduleService = set_async_telegram_bot_schedule_service;
 
-
         }
 
         public override void UpdateDataBase()

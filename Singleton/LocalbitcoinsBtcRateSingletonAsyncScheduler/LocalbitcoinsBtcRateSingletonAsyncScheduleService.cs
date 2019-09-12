@@ -21,7 +21,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         public ConcurrentBag<BtcRateLocalbitcoinsModel> RatesBTC { get; set; } = new ConcurrentBag<BtcRateLocalbitcoinsModel>();
         LocalBitcoins_API lb_api;
 
-        public override bool SchedulerIsReady => PaymentMethods != null && base.SchedulerIsReady;
+        public override bool SchedulerIsReady => AllowedPaymentMethods != null && base.SchedulerIsReady;
 
         /// <summary>
         /// Ограничение для отбора предложений биржи по минимальной сумме сделки.
@@ -47,15 +47,17 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         /// </summary>
         public string PaymentMethod { get; set; } = "qiwi";
 
+        public string CurrentFiatCurrency { get; set; } = "rub";
+
         /// <summary>
         /// Доступные/Актуальные методы оплаты
         /// </summary>
-        public Dictionary<string, string> PaymentMethods = new Dictionary<string, string>();
+        public Dictionary<string, string> AllowedPaymentMethods = new Dictionary<string, string>();
 
         public LocalbitcoinsBtcRateSingletonAsyncScheduleService(ILoggerFactory set_logger_factory, int set_schedule_pause_period, string set_local_bitcoins_api_auth_key, string set_auth_secret)
             : base(set_logger_factory, set_schedule_pause_period)
         {
-            SetStatus("Инициализация " + GetType().Name);
+            
             lb_api = new LocalBitcoins_API(set_local_bitcoins_api_auth_key, set_auth_secret);
 
             UpdatePaymentMethodsAsync();
@@ -91,7 +93,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                 }
                 SetStatus("После отбора методов по валюте RUB, осталось [" + raw_PaymentMethods.Count() + "] объектов");
 
-                PaymentMethods = raw_PaymentMethods.ToDictionary(x => x.Value.code, y => y.Value.name);
+                AllowedPaymentMethods = raw_PaymentMethods.ToDictionary(x => x.Value.code, y => y.Value.name);
                 AsyncScheduleAction();
             });
         }
@@ -103,7 +105,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         {
             SetStatus("Запрос к API-LocalBitcoins (не-авторизованый)");
 
-            AdListBitcoinsOnlineSerializationClass adListBitcoins = lb_api.BuyBitcoinsOnline(null, null, "rub", PaymentMethod);
+            AdListBitcoinsOnlineSerializationClass adListBitcoins = lb_api.BuyBitcoinsOnline(null, null, CurrentFiatCurrency, PaymentMethod);
             if (adListBitcoins == null)
             {
                 SetStatus("Ошибка получения данных с сервера API", StatusTypes.ErrorStatus);
@@ -170,8 +172,8 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                 }
 
                 RatesBTC.Add(btcRate);
-                RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>(RatesBTC.OrderBy(x=>x.DateCreate));
-                if(MaxSizeTransit< RatesBTC.Count)
+                RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>(RatesBTC.OrderBy(x => x.DateCreate));
+                if (MaxSizeTransit < RatesBTC.Count)
                     RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>(RatesBTC.Skip(RatesBTC.Count - MaxSizeTransit));
                 // public ConcurrentBag<BtcRateLocalbitcoinsModel> RatesBTC
                 SetStatus(null);
@@ -185,14 +187,21 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
 
         public override void InvokeAsyncSchedule()
         {
-            if (PaymentMethods is null || PaymentMethods.Count() == 0)
+            if (AllowedPaymentMethods is null || AllowedPaymentMethods.Count() == 0)
             {
-                SetStatus("Методы оплаты не загружены. Вызов планировщика отклоняется.", StatusTypes.ErrorStatus);
-                SetStatus(null);
+                SetStatus("Методы оплаты не загружены. Вызов планировщика невозможен", StatusTypes.ErrorStatus);
+                if(string.IsNullOrWhiteSpace(ScheduleStatus))
+                {
+                    SetStatus("Повторная попытка загрузка методов оплаты");
+                    UpdatePaymentMethodsAsync();
+                }
+                else
+                    SetStatus(null);
+
                 return;
             }
 
-            if (!PaymentMethods.Any(x => x.Key.ToLower() == PaymentMethod.ToLower()))
+            if (!AllowedPaymentMethods.Any(x => x.Key.ToLower() == PaymentMethod.ToLower()))
             {
                 SetStatus("Запрошеный метод оплаты не найден", StatusTypes.ErrorStatus);
                 SetStatus(null);

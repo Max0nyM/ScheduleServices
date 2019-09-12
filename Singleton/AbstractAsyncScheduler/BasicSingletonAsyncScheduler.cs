@@ -11,6 +11,8 @@ namespace AbstractAsyncScheduler
 {
     public abstract class BasicSingletonScheduler
     {
+        // TODO: Реализовать принудительную/ручную остановку/запуск асинхронного потока. Изначально в конструкторе определён автозапуск неуправляемого потока
+
         #region настройки/состояние планировщика
 
         /// <summary>
@@ -37,6 +39,11 @@ namespace AbstractAsyncScheduler
         /// Паузы между выполнениями команды. Будет считаться с момента перехода планировщика в режим готовности
         /// </summary>
         public int SchedulePausePeriod;
+
+        /// <summary>
+        /// Признак того что настало время запустить обработку 
+        /// </summary>
+        public bool ItTimeToRunProcessing => LastChangeStatusDateTime.AddSeconds(SchedulePausePeriod) >= DateTime.Now;
 
         /// <summary>
         /// История состояний планировщика
@@ -149,7 +156,11 @@ namespace AbstractAsyncScheduler
 
 
         /// <summary>
-        /// Состояние планировщика
+        /// Состояние планировщика. Зависит от текущего статуса планировщика, который в свою очередь устанавливается методом SetStatus(string new_status, StatusTypes StatusType = StatusTypes.SetValueStatus).
+        /// Планировщик свободен если текущий статус string.IsNullOrEmpty(ScheduleStatus) или время его установки устарело по таймауту TimeoutBusySchedule.
+        /// Если текущий статус не пустая строка и не NULL и вместе с тем значение не просрочено по таймауту TimeoutBusySchedule, то считается, что планировщик занят и не должен начинать следующую операцию.
+        /// Примечание: при назначении какого либо значимого статуса (не NULL) планировщику фиксируется время назначения этого статуса. И если значение не NULL и ещё не зависло (по версии параметра таймаута TimeoutBusySchedule), то выполнение команд планировщик будет отклонять.
+        /// Если выполнение одной операции зависает более чем на TimeoutBusySchedule, то планировщику автоматически принудительно ставится состояние NULL, что в свою очередь будет сигнализировать о том что планировщик готов выполнить новую операцию
         /// </summary>
         public virtual bool SchedulerIsReady => string.IsNullOrEmpty(ScheduleStatus);
 
@@ -173,6 +184,7 @@ namespace AbstractAsyncScheduler
         {
             SchedulePausePeriod = set_schedule_pause_period;
             AppLogger = loggerFactory.CreateLogger(GetType().Name + "Logger");
+            SetStatus("Инициализация " + GetType().Name);
             IntervalHandling();
         }
 
