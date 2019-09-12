@@ -4,8 +4,8 @@
 
 Асинхронные сервисы:
 - [LocalBitcoins](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/LocalbitcoinsBtcRateSingletonAsyncScheduler) **beta version**
-- [Electrum](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/ElectrumSingletonAsyncSheduler) **TEST version**
-- [TelegramBot](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/TelegramBotSingletonAsyncSheduler) **TEST version**
+- [Electrum](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/ElectrumSingletonAsyncSheduler) **pre-alfa version**
+- [TelegramBot](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/TelegramBotSingletonAsyncSheduler) **pre-alfa version**
 
 наследуются от этого Singleton сервиса.
 
