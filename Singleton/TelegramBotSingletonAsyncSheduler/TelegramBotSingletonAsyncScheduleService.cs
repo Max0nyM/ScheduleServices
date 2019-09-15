@@ -21,7 +21,7 @@ namespace TelegramBotSingletonAsyncSheduler
         public string TelegramBotApiKey { get; private set; }
         public IMemoryCache cache;
         public TelegramClientCore TelegramClient { get; private set; }
-        public bool TelegramClientNotLoaded => TelegramClient.Me is null || TelegramClient.Me.id == 0;
+        public bool TelegramClientNotLoaded => TelegramClient?.Me is null || TelegramClient.Me.id == 0;
 
 
         /// <summary>
