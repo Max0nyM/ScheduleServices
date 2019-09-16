@@ -18,6 +18,8 @@ namespace TelegramBotSingletonAsyncSheduler
 {
     public class TelegramBotSingletonAsyncScheduleService : BasicSingletonScheduler
     {
+        public enum ChatTypes { Private, Group, Supergroup, Channel, Error }
+
         public string TelegramBotApiKey { get; private set; }
         public IMemoryCache cache;
         public TelegramClientCore TelegramClient { get; private set; }
@@ -117,7 +119,7 @@ namespace TelegramBotSingletonAsyncSheduler
                 MessageClass message = TelegramClient.sendDocument(chat_id.ToString(), document, caption);
             });
         }
-        
+
         #endregion
 
         public async void AuthTelegramBotAsync()
@@ -200,10 +202,24 @@ namespace TelegramBotSingletonAsyncSheduler
                 {
                     TelegramClient.offset = Updates.Max(x => x.update_id);
                     SetStatus("Размещение TelegramBot обновлений во временное хранилище. [" + Updates.Length + "] шт");
-
+                    ChatTypes ChatType;
+                    string chat_type_as_string;
                     foreach (Update u in Updates)
                     {
-                        if (!TelegramBotUpdates.Any(x => x.update_id == u.update_id))
+                        #region Определение типа чата
+                        ChatType = ChatTypes.Error;
+                        chat_type_as_string = u.message.chat.type.ToLower();
+                        foreach (ChatTypes c in Enum.GetValues(typeof(ChatTypes)))
+                        {
+                            if (c.ToString("g").ToLower() == chat_type_as_string)
+                            {
+                                ChatType = c;
+                                break;
+                            }
+                        }
+                        #endregion
+
+                        if (ChatType == ChatTypes.Private && !TelegramBotUpdates.Any(x => x.update_id == u.update_id))
                             TelegramBotUpdates.Add(u);
                     }
                     try
