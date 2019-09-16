@@ -16,6 +16,7 @@ namespace ElectrumScopedSyncScheduler
 {
     public class ElectrumScopedSyncScheduleService : BasicScopedSyncScheduler
     {
+        public virtual int MinRequedCountConfirmations { get; set; } = 1;
         public ElectrumJsonRpcSingletonAsyncScheduleService AsyncElectrumScheduleService => BasicSingletonService as ElectrumJsonRpcSingletonAsyncScheduleService;
         public ElectrumScopedSyncScheduleService(DbContext set_db, ElectrumJsonRpcSingletonAsyncScheduleService set_async_electrum_schedule_service)
             : base(set_db, set_async_electrum_schedule_service)
@@ -32,7 +33,7 @@ namespace ElectrumScopedSyncScheduler
         {
             lock (AsyncElectrumScheduleService.Transactions)
             {
-                foreach (TransactionWalletHistoryResponseClass TransactionWallet in AsyncElectrumScheduleService.Transactions)
+                foreach (TransactionWalletHistoryResponseClass TransactionWallet in AsyncElectrumScheduleService.Transactions.Where(x => x.confirmations > MinRequedCountConfirmations))
                 {
                     if (string.IsNullOrWhiteSpace(TransactionWallet.txid))
                     {
@@ -90,7 +91,7 @@ namespace ElectrumScopedSyncScheduler
                                 db.Update(user);
 
                                 string notify = "Пополнение /balance +" + btcTransactionOut.Sum + "=" + user.BalanceBTC + " BTC";
-                                db.Add(new MessageModel() { Information = notify, SenderId = null, RecipientId = user.Id, NeedTelegramNotify = user.TelegramId != 0 });
+                                db.Add(new MessageModel() { Information = notify, SenderId = null, RecipientId = user.Id, NeedTelegramNotify = user.TelegramId != default });
 
                                 db.Add(new eCommerceJournalModel()
                                 {
@@ -100,8 +101,8 @@ namespace ElectrumScopedSyncScheduler
                                     SumBTC = btcTransactionOut.Sum,
                                     Information = notify
                                 });
+                                db.SaveChanges();
                             }
-                            db.SaveChanges();
                         }
                     }
                 }
@@ -121,7 +122,7 @@ namespace ElectrumScopedSyncScheduler
                     electrum_addresses.Sort();
                     foreach (string s in electrum_addresses)
                     {
-                        AsyncElectrumScheduleService.SetStatus("Проверка адреса на прикрепление за пользователем: if (users.SingleOrDefault(x => x.BitcoinAddress == "+s+") == null)");
+                        AsyncElectrumScheduleService.SetStatus("Проверка адреса на прикрепление за пользователем: if (users.SingleOrDefault(x => x.BitcoinAddress == " + s + ") == null)");
                         if (db.Set<UserModel>().SingleOrDefault(x => x.BitcoinAddress == s) == null)
                         {
                             AsyncElectrumScheduleService.SetStatus("Адресс " + s + " свободен");
