@@ -1,6 +1,7 @@
 ﻿////////////////////////////////////////////////
 // © https://github.com/badhitman - @fakegov
 ////////////////////////////////////////////////
+using AbstractAsyncScheduler;
 using AbstractSyncScheduler;
 using ElectrumJSONRPC.Response.Model;
 using ElectrumSingletonAsyncSheduler;
@@ -15,14 +16,19 @@ namespace ElectrumScopedSyncScheduler
 {
     public class ElectrumScopedSyncScheduleService : BasicScopedSyncScheduler
     {
-        public ElectrumJsonRpcSingletonAsyncScheduleService AsyncElectrumScheduleService { get; private set; }
+        public ElectrumJsonRpcSingletonAsyncScheduleService AsyncElectrumScheduleService => BasicSingletonService as ElectrumJsonRpcSingletonAsyncScheduleService;
         public ElectrumScopedSyncScheduleService(DbContext set_db, ElectrumJsonRpcSingletonAsyncScheduleService set_async_electrum_schedule_service)
             : base(set_db, set_async_electrum_schedule_service)
         {
-            AsyncElectrumScheduleService = set_async_electrum_schedule_service;
+            if (IsReady)
+            {
+                BasicSingletonService.SetStatus("Запуск sync scoped service", StatusTypes.DebugStatus);
+                SyncUpdate();
+                BasicSingletonService.SetStatus(null, StatusTypes.DebugStatus);
+            }
         }
 
-        public override void UpdateDataBase()
+        public override void SyncUpdate()
         {
             lock (AsyncElectrumScheduleService.Transactions)
             {

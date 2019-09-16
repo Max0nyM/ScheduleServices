@@ -94,14 +94,14 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                 SetStatus("После отбора методов по валюте RUB, осталось [" + raw_PaymentMethods.Count() + "] объектов");
 
                 AllowedPaymentMethods = raw_PaymentMethods.ToDictionary(x => x.Value.code, y => y.Value.name);
-                AsyncScheduleAction();
+                ScheduleBodyAsyncAction();
             });
         }
 
         /// <summary>
         /// [async] запросить обновление BTC курса по публичным данным биржи LocalBitcoin
         /// </summary>
-        protected override void AsyncScheduleAction()
+        protected override void ScheduleBodyAsyncAction()
         {
             SetStatus("Запрос к API-LocalBitcoins (не-авторизованый)");
 
@@ -185,7 +185,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
             }
         }
 
-        public override void InvokeAsyncSchedule()
+        public override void InvokeSchedule()
         {
             if (AllowedPaymentMethods is null || AllowedPaymentMethods.Count() == 0)
             {
@@ -208,7 +208,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                 return;
             }
 
-            base.InvokeAsyncSchedule();
+            base.InvokeSchedule();
         }
     }
 }

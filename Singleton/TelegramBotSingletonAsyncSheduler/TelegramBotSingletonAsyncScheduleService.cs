@@ -34,7 +34,7 @@ namespace TelegramBotSingletonAsyncSheduler
         {
             cache = memoryCache;
             TelegramBotApiKey = set_telegram_bot_api_key;
-            AsyncAuthTelegramBot();
+            AuthTelegramBotAsync();
         }
 
 
@@ -120,7 +120,7 @@ namespace TelegramBotSingletonAsyncSheduler
         
         #endregion
 
-        public async void AsyncAuthTelegramBot()
+        public async void AuthTelegramBotAsync()
         {
             SetStatus("Попытка авторизации TelegramBot: " + GetType().Name);
             if (string.IsNullOrWhiteSpace(TelegramBotApiKey))
@@ -152,11 +152,11 @@ namespace TelegramBotSingletonAsyncSheduler
                 }
                 Thread.Sleep(500);
                 SetStatus("Запрос обновлений TelegramBot");
-                AsyncScheduleAction();
+                ScheduleBodyAsyncAction();
             });
         }
 
-        protected override void AsyncScheduleAction()
+        protected override void ScheduleBodyAsyncAction()
         {
             if (TelegramClientNotLoaded)
             {
@@ -164,7 +164,7 @@ namespace TelegramBotSingletonAsyncSheduler
                 if (string.IsNullOrWhiteSpace(ScheduleStatus))
                 {
                     SetStatus("Повторная попытка авторизации и загрузки TelegramBot");
-                    AsyncAuthTelegramBot();
+                    AuthTelegramBotAsync();
                 }
                 else
                     SetStatus(null);
@@ -176,20 +176,21 @@ namespace TelegramBotSingletonAsyncSheduler
 
             try
             {
+                SetStatus("Запрос обновлений с сервера TelegramBot");
                 Updates = TelegramClient.getUpdates();
             }
             catch
             {
                 SetStatus("Ошибка при попытке получить обновления");
                 SetStatus(TelegramClient.HttpRrequestStatus);
-                SetStatus(null);
+                SetStatus(null, StatusTypes.DebugStatus);
                 return;
             }
             if (Updates == null)
             {
                 SetStatus("Обновления TelegramBot - IS NULL");
                 SetStatus(TelegramClient.HttpRrequestStatus);
-                SetStatus(null);
+                SetStatus(null, StatusTypes.DebugStatus);
                 return;
             }
 
@@ -198,7 +199,7 @@ namespace TelegramBotSingletonAsyncSheduler
                 lock (TelegramBotUpdates)
                 {
                     TelegramClient.offset = Updates.Max(x => x.update_id);
-                    SetStatus("Перенос TelegramBot обновлений во временное хранилище. [" + Updates.Length + "] шт");
+                    SetStatus("Размещение TelegramBot обновлений во временное хранилище. [" + Updates.Length + "] шт");
 
                     foreach (Update u in Updates)
                     {
@@ -219,12 +220,12 @@ namespace TelegramBotSingletonAsyncSheduler
                 }
             }
             else
-                SetStatus("Без TelegramBot обновлений");
+                SetStatus("Без TelegramBot обновлений", StatusTypes.DebugStatus);
 
             SetStatus(null);
         }
 
-        public override void InvokeAsyncSchedule()
+        public override void InvokeSchedule()
         {
             if (TelegramClientNotLoaded)
             {
@@ -232,14 +233,14 @@ namespace TelegramBotSingletonAsyncSheduler
                 if (string.IsNullOrWhiteSpace(ScheduleStatus))
                 {
                     SetStatus("Повторная попытка авторизации и загрузки TelegramBot");
-                    AsyncAuthTelegramBot();
+                    AuthTelegramBotAsync();
                 }
                 else
                     SetStatus(null);
 
                 return;
             }
-            base.InvokeAsyncSchedule();
+            base.InvokeSchedule();
         }
     }
 }

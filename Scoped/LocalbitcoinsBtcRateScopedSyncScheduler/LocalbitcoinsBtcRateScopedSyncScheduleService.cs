@@ -1,6 +1,7 @@
 ﻿////////////////////////////////////////////////
 // © https://github.com/badhitman - @fakegov
 ////////////////////////////////////////////////
+using AbstractAsyncScheduler;
 using AbstractSyncScheduler;
 using LocalbitcoinsBtcRateSingletonAsyncScheduler;
 using Microsoft.EntityFrameworkCore;
@@ -13,23 +14,24 @@ namespace LocalbitcoinsBtcRateScopedSyncScheduler
     {
         public LocalbitcoinsBtcRateSingletonAsyncScheduleService AsyncLocalbitcoinsBtcRateScheduleService => (LocalbitcoinsBtcRateSingletonAsyncScheduleService)BasicSingletonService;
 
-        public override bool IsReady => 
+        public override bool IsReady =>
             AsyncLocalbitcoinsBtcRateScheduleService.AllowedPaymentMethods != null &&
             AsyncLocalbitcoinsBtcRateScheduleService.AllowedPaymentMethods.Count > 0 &&
-            AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC.Count > 0 && 
+            AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC.Count > 0 &&
             base.IsReady;
 
         public LocalbitcoinsBtcRateScopedSyncScheduleService(DbContext set_db, LocalbitcoinsBtcRateSingletonAsyncScheduleService set_async_localbitcoins_btc_rate_schedule_service)
             : base(set_db, set_async_localbitcoins_btc_rate_schedule_service)
         {
-            lock (BasicSingletonService)
+            if (IsReady)
             {
-                if (IsReady)
-                    UpdateDataBase();
+                BasicSingletonService.SetStatus("Запуск sync scoped service", StatusTypes.DebugStatus);
+                SyncUpdate();
+                BasicSingletonService.SetStatus(null, StatusTypes.DebugStatus);
             }
         }
 
-        public override void UpdateDataBase()
+        public override void SyncUpdate()
         {
             AsyncLocalbitcoinsBtcRateScheduleService.SetStatus("Вызов scoped сервиса для записи данных в БД");
             lock (AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC)

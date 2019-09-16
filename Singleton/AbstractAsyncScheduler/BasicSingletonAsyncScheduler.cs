@@ -15,6 +15,9 @@ namespace AbstractAsyncScheduler
 
         #region настройки/состояние планировщика
 
+        public DateTime LastBeginAsyncWrapper { get; set; }
+        public DateTime LastEndAsyncWrapper { get; set; }
+
         /// <summary>
         /// Максимальный размер транзитных данных
         /// </summary>
@@ -38,12 +41,12 @@ namespace AbstractAsyncScheduler
         /// <summary>
         /// Паузы между выполнениями команды. Будет считаться с момента перехода планировщика в режим готовности
         /// </summary>
-        public int SchedulePausePeriod;
+        public int SchedulePausePeriod { get; set; }
 
         /// <summary>
         /// Признак того что настало время запустить обработку 
         /// </summary>
-        public bool ItTimeToRunProcessing => LastChangeStatusDateTime.AddSeconds(SchedulePausePeriod) >= DateTime.Now;
+        public bool ItTimeToRunProcessing => LastEndAsyncWrapper.AddSeconds(SchedulePausePeriod) <= DateTime.Now;
 
         /// <summary>
         /// История состояний планировщика
@@ -51,7 +54,7 @@ namespace AbstractAsyncScheduler
         public ConcurrentBag<TracertItemModel> TracertChangeStatus { get; private set; } = new ConcurrentBag<TracertItemModel>();
 
         /// <summary>
-        /// Дата/Время последнего изменения состояния
+        /// Дата/Время последней установки значимого статуса
         /// </summary>
         public DateTime LastChangeStatusDateTime
         {
@@ -60,7 +63,7 @@ namespace AbstractAsyncScheduler
                 DateTime max_date = DateTime.MinValue;
                 if (TracertChangeStatus.Count() > 0)
                     lock (TracertChangeStatus)
-                    {
+                    {// .Where(x=>x.TypeTracert > StatusTypes.DebugStatus)
                         max_date = TracertChangeStatus.Max(x => x.DateCreate);
                     }
 
@@ -126,6 +129,8 @@ namespace AbstractAsyncScheduler
                 AppLogger.LogTrace("Попытка установить статус null на null. Проигнорировано.");
                 return;
             }
+            if (string.IsNullOrWhiteSpace(new_status) && StatusType != StatusTypes.SystemStatus)
+                StatusType = StatusTypes.DebugStatus;
 
             switch (StatusType)
             {
@@ -134,6 +139,12 @@ namespace AbstractAsyncScheduler
                     break;
                 case StatusTypes.ErrorStatus:
                     AppLogger.LogError(new_status);
+                    break;
+                case StatusTypes.DebugStatus:
+                    AppLogger.LogDebug(new_status);
+                    break;
+                case StatusTypes.SystemStatus:
+                    AppLogger.LogDebug("status set null");
                     break;
                 default:
                     AppLogger.LogCritical("Тип статуса [" + StatusType.ToString() + "] за пределами доступных значений: " + new_status);
@@ -153,8 +164,7 @@ namespace AbstractAsyncScheduler
                     TracertChangeStatus = new ConcurrentBag<TracertItemModel>(TracertChangeStatus.Where(x => x.DateCreate > DateTime.Now.AddSeconds(-MaximumLifetimeSchedulerStatusTrace)));
             }
         }
-
-
+        
         /// <summary>
         /// Состояние планировщика. Зависит от текущего статуса планировщика, который в свою очередь устанавливается методом SetStatus(string new_status, StatusTypes StatusType = StatusTypes.SetValueStatus).
         /// Планировщик свободен если текущий статус string.IsNullOrEmpty(ScheduleStatus) или время его установки устарело по таймауту TimeoutBusySchedule.
@@ -172,7 +182,7 @@ namespace AbstractAsyncScheduler
             {
                 while (true)
                 {
-                    InvokeAsyncSchedule();
+                    InvokeSchedule();
                     System.Threading.Thread.Sleep(1000 * SchedulePausePeriod);
                 }
             });
@@ -189,50 +199,59 @@ namespace AbstractAsyncScheduler
         }
 
         /// <summary>
-        /// Асинхронный метод планировщика
+        /// Тело асинхронного метода
         /// </summary>
-        protected abstract void AsyncScheduleAction();
-        private async void AsyncOperation()
+        protected abstract void ScheduleBodyAsyncAction();
+
+        /// <summary>
+        /// обёртка (асинхронизатор) для тела асинхронного метода
+        /// </summary>
+        private async void WrapperAsync()
         {
-            SetStatus("Запуск плановой асинхронной операции [" + GetType().FullName + "]");
+            SetStatus("Запуск плановой асинхронной операции [" + GetType().FullName + "]", StatusTypes.DebugStatus);
             await Task.Run(() =>
             {
+                LastBeginAsyncWrapper = DateTime.Now;
                 try
                 {
-                    AsyncScheduleAction();
-                    SetStatus("Окончание плановой асинхронной операции");
+                    ScheduleBodyAsyncAction();
+                    SetStatus("Окончание плановой асинхронной операции", StatusTypes.DebugStatus);
                 }
                 catch (Exception e)
                 {
-                    SetStatus("Выполнение асинхронной задачи завершилось ошибкой: " + e.Message);
+                    SetStatus("Выполнение асинхронной задачи завершилось ошибкой: " + e.Message, StatusTypes.ErrorStatus);
                 }
-                SetStatus(null);
+                LastEndAsyncWrapper = DateTime.Now;
+                SetStatus(null, StatusTypes.DebugStatus);
             });
         }
 
-        public virtual void InvokeAsyncSchedule()
+        /// <summary>
+        /// Попытка запуска планировщика
+        /// </summary>
+        public virtual void InvokeSchedule()
         {
-            // Время не настало
-            if (LastChangeStatusDateTime.AddSeconds(SchedulePausePeriod) > DateTime.Now)
-            {
-                AppLogger.LogTrace("Планировщик ожидает своего времени: " + GetType().Name);
-                return;
-            }
             // Планировщик занят
             if (!SchedulerIsReady)
             {
-                AppLogger.LogWarning("Планировщик занят: " + GetType().Name);
+                AppLogger.LogDebug("Планировщик занят задачей: " + ScheduleStatus);
+                return;
+            }
+            // Время не настало
+            if (new DateTime(Math.Max(LastBeginAsyncWrapper.Ticks, LastEndAsyncWrapper.Ticks)).AddSeconds(SchedulePausePeriod) > DateTime.Now)
+            {
+                AppLogger.LogDebug("Планировщик ожидает своего времени: " + GetType().Name);
                 return;
             }
             try
             {
                 AppLogger.LogInformation("Запуск планировщика по расписанию: " + GetType().Name);
-                AsyncOperation();
+                WrapperAsync();
             }
             catch (Exception e)
             {
                 SetStatus("Ошибка выполнения асинхронной операции планировщика: " + e.Message, StatusTypes.ErrorStatus);
-                SetStatus(null);
+                SetStatus(null, StatusTypes.DebugStatus);
             }
         }
     }

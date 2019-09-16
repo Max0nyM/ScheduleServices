@@ -35,6 +35,7 @@ namespace ElectrumSingletonAsyncSheduler
             JsonRpcServerAddress = set_json_rpc_server_address;
             JsonRpcServerPort = set_json_rpc_server_port;
             ElectrumClient = new Electrum_JSONRPC_Client(JsonRpcUsername, JsonRpcPassword);
+            ConnectToJsonRpcAsync();
         }
 
         private async void ConnectToJsonRpcAsync()
@@ -65,11 +66,11 @@ namespace ElectrumSingletonAsyncSheduler
                     return;
                 }
                 SetStatus("Electrum [ver." + ElectrumVersion + "] is ready...", StatusTypes.ErrorStatus);
-                AsyncScheduleAction();
+                ScheduleBodyAsyncAction();
             });
         }
 
-        protected override void AsyncScheduleAction()
+        protected override void ScheduleBodyAsyncAction()
         {
             WalletTransactionsHistoryResponseClass transactions = ElectrumClient.GetTransactionsHistoryWallet(true, true, true, null, TransactionsHistoryFromHeight);
             if (transactions is null)
@@ -128,7 +129,7 @@ namespace ElectrumSingletonAsyncSheduler
             }
         }
 
-        public override void InvokeAsyncSchedule()
+        public override void InvokeSchedule()
         {
             if (string.IsNullOrWhiteSpace(ElectrumVersion))
             {
@@ -136,7 +137,7 @@ namespace ElectrumSingletonAsyncSheduler
                 SetStatus(null);
                 return;
             }
-            base.InvokeAsyncSchedule();
+            base.InvokeSchedule();
         }
     }
 }
