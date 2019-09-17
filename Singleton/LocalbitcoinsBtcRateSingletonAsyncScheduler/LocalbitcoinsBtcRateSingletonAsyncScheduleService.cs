@@ -19,7 +19,9 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         /// Транзитный набор полученых курсов с LocalBitcoins
         /// </summary>
         public ConcurrentBag<BtcRateLocalbitcoinsModel> RatesBTC { get; set; } = new ConcurrentBag<BtcRateLocalbitcoinsModel>();
+
         LocalBitcoins_API lb_api;
+                
 
         public override bool SchedulerIsReady => AllowedPaymentMethods != null && base.SchedulerIsReady;
 
@@ -47,6 +49,9 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         /// </summary>
         public string PaymentMethod { get; set; } = "qiwi";
 
+        /// <summary>
+        /// Текущий код валюты
+        /// </summary>
         public string CurrentFiatCurrency { get; set; } = "rub";
 
         /// <summary>
@@ -56,8 +61,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
 
         public LocalbitcoinsBtcRateSingletonAsyncScheduleService(ILoggerFactory set_logger_factory, int set_schedule_pause_period, string set_local_bitcoins_api_auth_key, string set_auth_secret)
             : base(set_logger_factory, set_schedule_pause_period)
-        {
-            
+        {           
             lb_api = new LocalBitcoins_API(set_local_bitcoins_api_auth_key, set_auth_secret);
             UpdatePaymentMethodsAsync();
         }
@@ -68,6 +72,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
             {
                 SetStatus("Загрузка доступных методов оплаты: " + GetType().Name);
                 Dictionary<string, PaymentMethodsSerializationClass> raw_PaymentMethods = lb_api.PaymentMethods();
+                if(EnableFullRawTracert)
                 SetStatus("responsebody:" + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
                 if (raw_PaymentMethods is null)
                 {
@@ -106,7 +111,9 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
             SetStatus("Запрос к API-LocalBitcoins (не-авторизованый)");
 
             AdListBitcoinsOnlineSerializationClass adListBitcoins = lb_api.BuyBitcoinsOnline(null, null, CurrentFiatCurrency, PaymentMethod);
-            SetStatus("response body: " + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
+            if (EnableFullRawTracert)
+                SetStatus("response body: " + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
+
             if (adListBitcoins == null)
             {
                 SetStatus("Ошибка получения данных с сервера API", StatusTypes.ErrorStatus);
@@ -127,7 +134,10 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                 while (adListBitcoins is null || (buy_bitcoin_online.Count() < 5 && !string.IsNullOrWhiteSpace(pagination_next)))
                 {
                     adListBitcoins = lb_api.BuyBitcoinsOnline(null, null, null, null, pagination_next);
-                    SetStatus("response body: " + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
+
+                    if (EnableFullRawTracert)
+                        SetStatus("response body: " + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
+
                     if (adListBitcoins is null)
                     {
                         SetStatus("Ошибка получения данных от сервера", StatusTypes.ErrorStatus);

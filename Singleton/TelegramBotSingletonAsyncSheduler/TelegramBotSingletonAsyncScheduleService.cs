@@ -137,7 +137,10 @@ namespace TelegramBotSingletonAsyncSheduler
                 try
                 {
                     TelegramClient = new TelegramClientCore(TelegramBotApiKey);
-                    SetStatus("http_response_raw" + TelegramClient.http_response_raw, StatusTypes.DebugStatus);
+
+                    if (EnableFullRawTracert)
+                        SetStatus("http_response_raw" + TelegramClient.http_response_raw, StatusTypes.DebugStatus);
+
                     if (TelegramClientNotLoaded)
                     {
                         SetStatus("Ошибка проверки TelegramBot: <TelegramClientNotLoaded>", StatusTypes.ErrorStatus);
@@ -181,7 +184,9 @@ namespace TelegramBotSingletonAsyncSheduler
             {
                 SetStatus("Запрос обновлений с сервера TelegramBot");
                 Updates = TelegramClient.getUpdates();
-                SetStatus("http_response_raw" + TelegramClient.http_response_raw, StatusTypes.DebugStatus);
+
+                if (EnableFullRawTracert)
+                    SetStatus("http_response_raw" + TelegramClient.http_response_raw, StatusTypes.DebugStatus);
             }
             catch
             {
@@ -229,6 +234,8 @@ namespace TelegramBotSingletonAsyncSheduler
                         Thread.Sleep(500);
                         SetStatus("Сдвиг/Закрытие очереди получения обновлений от TelegramBot");
                         TelegramClient.getUpdates(1);
+                        if (EnableFullRawTracert)
+                            SetStatus("http_response_raw" + TelegramClient.http_response_raw, StatusTypes.DebugStatus);
                     }
                     catch (Exception e)
                     {

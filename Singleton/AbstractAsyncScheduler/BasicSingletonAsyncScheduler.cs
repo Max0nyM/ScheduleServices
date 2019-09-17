@@ -15,6 +15,12 @@ namespace AbstractAsyncScheduler
 
         #region настройки/состояние планировщика
 
+        /// <summary>
+        /// Признак того что нужно включать в трассировку данные http протокола. Там много json текста, который усложняет визуальное понимание процессов, но с другой стороны повзоляет видеть даынне, которыми обмениваются клиент с сервром.
+        /// Если false, то данные урвоня транспорта и протокола не будут отображатся в статус сервису. В таком виде визуально читать трассировку проще
+        /// </summary>
+        public bool EnableFullRawTracert { get; set; } = false;
+
         public DateTime LastBeginAsyncWrapper { get; set; }
         public DateTime LastEndAsyncWrapper { get; set; }
 
@@ -164,7 +170,7 @@ namespace AbstractAsyncScheduler
                     TracertChangeStatus = new ConcurrentBag<TracertItemModel>(TracertChangeStatus.Where(x => x.DateCreate > DateTime.Now.AddSeconds(-MaximumLifetimeSchedulerStatusTrace)));
             }
         }
-        
+
         /// <summary>
         /// Состояние планировщика. Зависит от текущего статуса планировщика, который в свою очередь устанавливается методом SetStatus(string new_status, StatusTypes StatusType = StatusTypes.SetValueStatus).
         /// Планировщик свободен если текущий статус string.IsNullOrEmpty(ScheduleStatus) или время его установки устарело по таймауту TimeoutBusySchedule.

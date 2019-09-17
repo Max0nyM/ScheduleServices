@@ -47,12 +47,15 @@ namespace ElectrumSingletonAsyncSheduler
                 {
                     SimpleStringResponseClass electrum_version = ElectrumClient.GetElectrumVersion();
                     ElectrumVersion = electrum_version?.result;
+                    if (EnableFullRawTracert)
+                        SetStatus("jsonrpc_response_raw: " + ElectrumClient.jsonrpc_response_raw, StatusTypes.DebugStatus);
+
                 }
                 catch (Exception e)
                 {
 
                     SetStatus("Ошибка чтения данных Electrum JSONRPC: " + e.Message, StatusTypes.ErrorStatus);
-                    SetStatus("jsonrpc_response_raw: " + ElectrumClient.jsonrpc_response_raw, StatusTypes.ErrorStatus);
+
                     SetStatus("HttpStatusCode: " + ElectrumClient.CurrentHttpStatusCode, StatusTypes.ErrorStatus);
                     SetStatus("HttpStatusDescription: " + ElectrumClient.CurrentStatusDescription, StatusTypes.ErrorStatus);
                     SetStatus(null);
@@ -73,6 +76,9 @@ namespace ElectrumSingletonAsyncSheduler
         protected override void ScheduleBodyAsyncAction()
         {
             WalletTransactionsHistoryResponseClass transactions = ElectrumClient.GetTransactionsHistoryWallet(true, true, true, null, TransactionsHistoryFromHeight);
+            if (EnableFullRawTracert)
+                SetStatus("jsonrpc_response_raw: " + ElectrumClient.jsonrpc_response_raw, StatusTypes.DebugStatus);
+
             if (transactions is null)
             {
                 SetStatus("Ошибка загрузки транзакций Electrum. transactions is null", StatusTypes.ErrorStatus);
@@ -109,6 +115,10 @@ namespace ElectrumSingletonAsyncSheduler
                     try
                     {
                         string[] walet_addresses = ElectrumClient.GetListWalletAddresses().result;
+
+                        if (EnableFullRawTracert)
+                            SetStatus("jsonrpc_response_raw: " + ElectrumClient.jsonrpc_response_raw, StatusTypes.DebugStatus);
+
                         if (walet_addresses != null && walet_addresses.Length > 0)
                             AddressesWalet = new ConcurrentBag<string>(walet_addresses);
                         else
@@ -117,7 +127,6 @@ namespace ElectrumSingletonAsyncSheduler
                             SetStatus(null);
                             return;
                         }
-
                     }
                     catch (Exception e)
                     {
