@@ -1,7 +1,7 @@
 # ScheduleServices
 Семейство сервисов для подключения внешних API служб в проекты: ASP.Net Core 2.2
 
-Набор (Scoped и Singleton) сервисов для интеграции со сторонними службами: Electrum-JSON/RPC-API, LocalBitcoins-API и TelegramBot-API
+Набор ([Scoped](https://github.com/badhitman/ScheduleServices/tree/master/Scoped) и [Singleton](https://github.com/badhitman/ScheduleServices/tree/master/Singleton)) сервисов для интеграции со сторонними службами: [Electrum-JSON/RPC-API](https://github.com/spesmilo/electrum/blob/master/electrum/commands.py), [LocalBitcoins-API](https://localbitcoins.net/api-docs/) и [TelegramBot-API](https://core.telegram.org/bots/api)
 
 Singleton сервисы асинхронно опрашивают API сервисы (Electrum JSON/RPC, LocalBitcoins и TelegramBot) во внутренние [транзитные хранилища], а Scoped сервисы пишут данные из этих [хранилищ] в EF.Core базу.
 
