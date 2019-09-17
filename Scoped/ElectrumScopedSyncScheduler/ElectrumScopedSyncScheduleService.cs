@@ -21,7 +21,7 @@ namespace ElectrumScopedSyncScheduler
         public ElectrumScopedSyncScheduleService(DbContext set_db, ElectrumJsonRpcSingletonAsyncScheduleService set_async_electrum_schedule_service)
             : base(set_db, set_async_electrum_schedule_service)
         {
-            if (IsReady)
+            if (IsReady && AsyncElectrumScheduleService.Transactions.Count > 0)
             {
                 BasicSingletonService.SetStatus("Запуск sync scoped service", StatusTypes.DebugStatus);
                 SyncUpdate();
@@ -33,6 +33,8 @@ namespace ElectrumScopedSyncScheduler
         {
             lock (AsyncElectrumScheduleService.Transactions)
             {
+                AsyncElectrumScheduleService.SetStatus("Сверка транзакций из Electrum ["+ AsyncElectrumScheduleService.Transactions.Count + " элементов] с базой данных");
+                bool exist_new_tx = false;
                 foreach (TransactionWalletHistoryResponseClass TransactionWallet in AsyncElectrumScheduleService.Transactions.Where(x => x.confirmations > MinRequedCountConfirmations))
                 {
                     if (string.IsNullOrWhiteSpace(TransactionWallet.txid))
@@ -42,7 +44,6 @@ namespace ElectrumScopedSyncScheduler
                         continue;
                     }
 
-                    AsyncElectrumScheduleService.SetStatus("Поиск входящей транзакции в базе данных > SingleOrDefault(x => x.TxId == TransactionWallet.txid) // '" + TransactionWallet.txid + "'");
                     BtcTransactionModel btcTransaction;
                     try
                     {
@@ -57,6 +58,8 @@ namespace ElectrumScopedSyncScheduler
 
                     if (btcTransaction is null)
                     {
+                        exist_new_tx = true;
+                        AsyncElectrumScheduleService.SetStatus("Новая транзакция для записи в БД: " + TransactionWallet.ToString());
                         btcTransaction = new BtcTransactionModel()
                         {
                             TxId = TransactionWallet.txid,
@@ -68,6 +71,7 @@ namespace ElectrumScopedSyncScheduler
 
                         foreach (TransactionWalletHistoryResponseOutputsClass TransactionOut in TransactionWallet.outputs.Where(x => AsyncElectrumScheduleService.ElectrumClient?.IsAddressMine(x.address)?.result == true))
                         {
+                            AsyncElectrumScheduleService.SetStatus("Запись нового TxOut: " + TransactionOut.ToString());
                             BtcTransactionOutModel btcTransactionOut = new BtcTransactionOutModel()
                             {
                                 BtcTransactionModelId = btcTransaction.Id,
@@ -83,6 +87,7 @@ namespace ElectrumScopedSyncScheduler
                             UserModel user = db.Set<UserModel>().SingleOrDefault(x => x.BitcoinAddress == TransactionOut.address);
                             if (!(user is null))
                             {
+                                AsyncElectrumScheduleService.SetStatus("Пользователь найден: "+ user.ToString());
                                 btcTransactionOut.UserId = user.Id;
                                 db.Update(btcTransactionOut);
                                 //
@@ -103,10 +108,15 @@ namespace ElectrumScopedSyncScheduler
                                 });
                                 db.SaveChanges();
                             }
+                            else
+                                AsyncElectrumScheduleService.SetStatus("Пользователь с таким BTC адресом НЕ найден. Транзакция не будет зачислена пользователю");
                         }
                     }
                 }
+                if(!exist_new_tx)
+                    AsyncElectrumScheduleService.SetStatus("В Electrum нет ни одной новой транзакции");
                 AsyncElectrumScheduleService.SetStatus(null);
+                AsyncElectrumScheduleService.Transactions.Clear();
             }
         }
 

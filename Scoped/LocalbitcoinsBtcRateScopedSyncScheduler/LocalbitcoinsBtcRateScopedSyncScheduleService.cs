@@ -74,7 +74,7 @@ namespace LocalbitcoinsBtcRateScopedSyncScheduler
                     db.SaveChanges();
                     AsyncLocalbitcoinsBtcRateScheduleService.SetStatus("Загружается снимок состояния: " + btcRate.ToString());
                 }
-                AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>();
+                AsyncLocalbitcoinsBtcRateScheduleService.RatesBTC.Clear();
             }
             //if (AsyncScheduleService.LastChangeStatusDateTime.AddSeconds(AsyncScheduleService.SchedulePausePeriod) < DateTime.Now)
             //    AsyncScheduleService.InvokeAsyncSchedule();

@@ -59,7 +59,6 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         {
             
             lb_api = new LocalBitcoins_API(set_local_bitcoins_api_auth_key, set_auth_secret);
-
             UpdatePaymentMethodsAsync();
         }
 
