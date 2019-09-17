@@ -1,4 +1,7 @@
-﻿using MetadataEntityModel;
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov
+////////////////////////////////////////////////
+using MetadataEntityModel;
 using System.Collections.Generic;
 using TelegramBot.TelegramMetadata.GettingUpdates;
 

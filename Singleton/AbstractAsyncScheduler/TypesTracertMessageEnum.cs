@@ -1,4 +1,7 @@
-﻿namespace AbstractAsyncScheduler
+﻿////////////////////////////////////////////////
+// © https://github.com/badhitman - @fakegov
+////////////////////////////////////////////////
+namespace AbstractAsyncScheduler
 {
     /// <summary>
     /// Типы статусов планировщика
