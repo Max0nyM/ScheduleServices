@@ -1,2 +1,2 @@
 ## Scoped TelegramBot Service
-test alfa version
+beta version

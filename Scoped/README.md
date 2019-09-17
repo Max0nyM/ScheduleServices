@@ -5,5 +5,5 @@ Scoped сервисы-адапторы необходимы для извлеч�
 Базовый абстрактный `AbstractSyncScheduler` и реализации от него
 
 - [x] **LocalbitcoinsBtcRateScopedSyncScheduler** _sync_ _scoped_ сервис-адаптор
-- [ ] **_ElectrumScopedSyncScheduler_** _sync_ _scoped_ сервис-адаптор
-- [ ] **_TelegramBotScopedSyncScheduler_** _sync_ _scoped_ сервис-адаптор
+- [x] **ElectrumScopedSyncScheduler** _sync_ _scoped_ сервис-адаптор
+- [x] **TelegramBotScopedSyncScheduler** _sync_ _scoped_ сервис-адаптор

@@ -1,4 +1,5 @@
 ## Singleton сервис асинхронной плановой задачи для чтения Electrum JSONRPC
-test alfa version
+
+demo
 
 ![Electrum Tracert demo](./demo/ElectrumTracert.png)

@@ -9,7 +9,7 @@ Singleton сервисы асинхронно опрашивают сервис�
 **beta** version.
 
 ## TelegramBot [Singleton](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/TelegramBotSingletonAsyncSheduler)+[Scoped](https://github.com/badhitman/ScheduleServices/tree/master/Scoped/TelegramBotScopedSyncScheduler)
-**test pre-alfa** version ...
+**beta** version.
 
 ## Electrum JSON/RPC  [Singleton](https://github.com/badhitman/ScheduleServices/tree/master/Singleton/ElectrumSingletonAsyncSheduler)+[Scoped](https://github.com/badhitman/ScheduleServices/tree/master/Scoped/ElectrumScopedSyncScheduler)
-**test pre-alfa** version ...
+**beta** version.
