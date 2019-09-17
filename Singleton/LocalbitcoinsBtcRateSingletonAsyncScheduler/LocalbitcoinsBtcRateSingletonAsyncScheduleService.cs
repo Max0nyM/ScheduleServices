@@ -68,6 +68,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
             {
                 SetStatus("Загрузка доступных методов оплаты: " + GetType().Name);
                 Dictionary<string, PaymentMethodsSerializationClass> raw_PaymentMethods = lb_api.PaymentMethods();
+                SetStatus("responsebody:" + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
                 if (raw_PaymentMethods is null)
                 {
                     SetStatus("Ошибка загрузки методов оплаты. lb_api.PaymentMethods() вернул NULL", StatusTypes.ErrorStatus);
@@ -105,11 +106,10 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
             SetStatus("Запрос к API-LocalBitcoins (не-авторизованый)");
 
             AdListBitcoinsOnlineSerializationClass adListBitcoins = lb_api.BuyBitcoinsOnline(null, null, CurrentFiatCurrency, PaymentMethod);
+            SetStatus("response body: " + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
             if (adListBitcoins == null)
             {
                 SetStatus("Ошибка получения данных с сервера API", StatusTypes.ErrorStatus);
-
-                SetStatus("response body:" + lb_api.api_raw.responsebody, StatusTypes.ErrorStatus);
 
                 SetStatus("http request status:" + lb_api.api_raw.HttpRequestStatus, StatusTypes.ErrorStatus);
 
@@ -127,18 +127,11 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                 while (adListBitcoins is null || (buy_bitcoin_online.Count() < 5 && !string.IsNullOrWhiteSpace(pagination_next)))
                 {
                     adListBitcoins = lb_api.BuyBitcoinsOnline(null, null, null, null, pagination_next);
+                    SetStatus("response body: " + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
                     if (adListBitcoins is null)
                     {
                         SetStatus("Ошибка получения данных от сервера", StatusTypes.ErrorStatus);
-
-                        string HttpRequestStatus = lb_api.api_raw.HttpRequestStatus;
-
-                        SetStatus("HttpRequestStatus: " + HttpRequestStatus, StatusTypes.ErrorStatus);
-
-                        string responsebody = lb_api.api_raw.responsebody;
-
-                        SetStatus("ResponseBody: " + responsebody, StatusTypes.ErrorStatus);
-
+                        SetStatus("HttpRequestStatus: " + lb_api.api_raw.HttpRequestStatus, StatusTypes.ErrorStatus);
                         SetStatus("Ещё одна попытка...");
 
                         continue;
