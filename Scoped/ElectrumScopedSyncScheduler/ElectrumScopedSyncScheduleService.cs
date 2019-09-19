@@ -16,6 +16,7 @@ namespace ElectrumScopedSyncScheduler
 {
     public class ElectrumScopedSyncScheduleService : BasicScopedSyncScheduler
     {
+        static List<string> busy_addresses = new List<string>();
         public virtual int MinRequedCountConfirmations { get; set; } = 1;
         public ElectrumJsonRpcSingletonAsyncScheduleService AsyncElectrumScheduleService => BasicSingletonService as ElectrumJsonRpcSingletonAsyncScheduleService;
         public ElectrumScopedSyncScheduleService(DbContext set_db, ElectrumJsonRpcSingletonAsyncScheduleService set_async_electrum_schedule_service)
@@ -33,7 +34,7 @@ namespace ElectrumScopedSyncScheduler
         {
             lock (AsyncElectrumScheduleService.Transactions)
             {
-                AsyncElectrumScheduleService.SetStatus("Сверка транзакций из Electrum ["+ AsyncElectrumScheduleService.Transactions.Count + " элементов] с базой данных");
+                AsyncElectrumScheduleService.SetStatus("Сверка транзакций из Electrum [" + AsyncElectrumScheduleService.Transactions.Count + " элементов] с базой данных");
                 bool exist_new_tx = false;
                 foreach (TransactionWalletHistoryResponseClass TransactionWallet in AsyncElectrumScheduleService.Transactions.Where(x => x.confirmations > MinRequedCountConfirmations))
                 {
@@ -87,7 +88,7 @@ namespace ElectrumScopedSyncScheduler
                             UserModel user = db.Set<UserModel>().SingleOrDefault(x => x.BitcoinAddress == TransactionOut.address);
                             if (!(user is null))
                             {
-                                AsyncElectrumScheduleService.SetStatus("Пользователь найден: "+ user.ToString());
+                                AsyncElectrumScheduleService.SetStatus("Пользователь найден: " + user.ToString());
                                 btcTransactionOut.UserId = user.Id;
                                 db.Update(btcTransactionOut);
                                 //
@@ -113,7 +114,7 @@ namespace ElectrumScopedSyncScheduler
                         }
                     }
                 }
-                if(!exist_new_tx)
+                if (!exist_new_tx)
                     AsyncElectrumScheduleService.SetStatus("В Electrum нет ни одной новой транзакции");
                 AsyncElectrumScheduleService.SetStatus(null);
                 AsyncElectrumScheduleService.Transactions.Clear();
@@ -132,17 +133,25 @@ namespace ElectrumScopedSyncScheduler
                     electrum_addresses.Sort();
                     foreach (string s in electrum_addresses)
                     {
+                        if (busy_addresses.Contains(s))
+                            continue;
+
                         AsyncElectrumScheduleService.SetStatus("Проверка адреса на прикрепление за пользователем: if (users.SingleOrDefault(x => x.BitcoinAddress == " + s + ") == null)");
-                        if (db.Set<UserModel>().SingleOrDefault(x => x.BitcoinAddress == s) == null)
+                        if (db.Set<UserModel>().Count(x => x.BitcoinAddress == s) == 0)
                         {
                             AsyncElectrumScheduleService.SetStatus("Адресс " + s + " свободен");
+
+                            busy_addresses.Add(s);
+                            if (busy_addresses.Count > 50)
+                                busy_addresses.RemoveRange(0, busy_addresses.Count - 30);
+
                             return s;
                         }
                     }
                 }
             }
 
-            return AsyncElectrumScheduleService.ElectrumClient.CreateNewAddress()?.result;
+            return AsyncElectrumScheduleService?.ElectrumClient?.CreateNewAddress()?.result;
         }
     }
 }
