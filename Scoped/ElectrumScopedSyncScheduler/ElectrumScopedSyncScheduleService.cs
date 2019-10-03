@@ -96,8 +96,7 @@ namespace ElectrumScopedSyncScheduler
                                 user.BalanceBTC += btcTransactionOut.Sum;
                                 db.Update(user);
 
-                                string notify = "Пополнение /balance +" + btcTransactionOut.Sum + "=" + user.BalanceBTC + " BTC";
-                                db.Add(new MessageModel() { Information = notify, SenderId = null, RecipientId = user.Id, NeedTelegramNotify = user.TelegramId != default });
+                                string notify = "Пополнение /balance +" + string.Format("{0:F20}", Math.Round(btcTransactionOut.Sum, 8)) + "=" + user.BalanceBTC + " BTC";
 
                                 db.Add(new eCommerceJournalModel()
                                 {
@@ -107,6 +106,14 @@ namespace ElectrumScopedSyncScheduler
                                     SumBTC = btcTransactionOut.Sum,
                                     Information = notify
                                 });
+                                db.Add(new MessageModel() { Information = notify, SenderId = null, RecipientId = user.Id, NeedTelegramNotify = user.TelegramId != default });
+
+                                db.SaveChanges();
+
+                                foreach (UserModel admin_user in db.Set<UserModel>().Where(x => x.AccessLevel > AccessLevelUserModel.Manager))
+                                {
+                                    db.Add(new MessageModel() { Information = "Для пользователя: " + user?.AboutTelegramUser + " >> " + notify, SenderId = user?.Id, RecipientId = admin_user.Id, NeedTelegramNotify = user.TelegramId != default });
+                                }
                                 db.SaveChanges();
                             }
                             else

@@ -5,7 +5,6 @@ using AbstractAsyncScheduler;
 using AbstractSyncScheduler;
 using LocalbitcoinsBtcRateSingletonAsyncScheduler;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Concurrent;
 using System.Linq;
 
 namespace LocalbitcoinsBtcRateScopedSyncScheduler

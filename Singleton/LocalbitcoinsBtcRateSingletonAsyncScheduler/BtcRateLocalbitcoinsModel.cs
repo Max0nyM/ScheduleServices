@@ -20,6 +20,6 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         /// </summary>
         public int CountRates { get; set; }
 
-        public override string ToString() => DateCreate.ToString() + " [count: " + CountRates.ToString() + "] : [min " + MinRate.ToString() + "] - " + ((MinRate + MaxRate) / 2).ToString() + " - [max " + MaxRate.ToString() + "]";
+        public override string ToString() => " [count: " + CountRates.ToString() + "] : [min " + MinRate.ToString() + "] - " + ((MinRate + MaxRate) / 2).ToString() + " - [max " + MaxRate.ToString() + "]";
     }
 }
