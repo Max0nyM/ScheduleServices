@@ -131,7 +131,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                     buy_bitcoin_online = new List<AdListItem>();
 
                 string pagination_next = adListBitcoins.pagination?.next;
-                while (adListBitcoins is null || (buy_bitcoin_online.Count() < 5 && !string.IsNullOrWhiteSpace(pagination_next)))
+                while (adListBitcoins is null || (buy_bitcoin_online.Count() < 3 && !string.IsNullOrWhiteSpace(pagination_next)))
                 {
                     adListBitcoins = lb_api.BuyBitcoinsOnline(null, null, null, null, pagination_next);
 
@@ -167,7 +167,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                 }
 
                 BtcRateLocalbitcoinsModel btcRate = new BtcRateLocalbitcoinsModel() { CountRates = buy_bitcoin_online.Count, DateCreate = DateTime.Now, Information = "Снимок состяния Localbitcoins qiwi", MaxRate = double.MinValue, MinRate = double.MaxValue };
-                foreach (AdListItem ad_item in buy_bitcoin_online.Take(4))
+                foreach (AdListItem ad_item in buy_bitcoin_online.Take(3))
                 {
                     btcRate.MaxRate = Math.Max(btcRate.MaxRate, ad_item.data.get_temp_price());
                     btcRate.MinRate = Math.Min(btcRate.MinRate, ad_item.data.get_temp_price());
