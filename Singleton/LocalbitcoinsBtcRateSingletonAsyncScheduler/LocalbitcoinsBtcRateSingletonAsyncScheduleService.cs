@@ -21,7 +21,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
         public ConcurrentBag<BtcRateLocalbitcoinsModel> RatesBTC { get; set; } = new ConcurrentBag<BtcRateLocalbitcoinsModel>();
 
         LocalBitcoins_API lb_api;
-                
+
 
         public override bool SchedulerIsReady => AllowedPaymentMethods != null && base.SchedulerIsReady;
 
@@ -61,7 +61,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
 
         public LocalbitcoinsBtcRateSingletonAsyncScheduleService(ILoggerFactory set_logger_factory, int set_schedule_pause_period, string set_local_bitcoins_api_auth_key, string set_auth_secret)
             : base(set_logger_factory, set_schedule_pause_period)
-        {           
+        {
             lb_api = new LocalBitcoins_API(set_local_bitcoins_api_auth_key, set_auth_secret);
             UpdatePaymentMethodsAsync();
         }
@@ -72,8 +72,8 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
             {
                 SetStatus("Загрузка доступных методов оплаты: " + GetType().Name);
                 Dictionary<string, PaymentMethodsSerializationClass> raw_PaymentMethods = lb_api.PaymentMethods();
-                if(EnableFullRawTracert)
-                SetStatus("responsebody:" + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
+                if (EnableFullRawTracert)
+                    SetStatus("responsebody:" + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
                 if (raw_PaymentMethods is null)
                 {
                     SetStatus("Ошибка загрузки методов оплаты. lb_api.PaymentMethods() вернул NULL", StatusTypes.ErrorStatus);
@@ -124,67 +124,68 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
                 return;
             }
 
+
+            List<AdListItem> buy_bitcoin_online = adListBitcoins.data.ad_list.Where(x => x.data.get_min_amount_as_double() <= SumFilter && x.data.profile.feedback_score >= FilterProfileFeedbackScore && x.data.get_temp_price() > 0) as List<AdListItem>;
+            if (buy_bitcoin_online is null)
+                buy_bitcoin_online = new List<AdListItem>();
+
+            string pagination_next = adListBitcoins.pagination?.next;
+            while (adListBitcoins is null || (buy_bitcoin_online.Count() < 3 && !string.IsNullOrWhiteSpace(pagination_next)))
+            {
+                adListBitcoins = lb_api.BuyBitcoinsOnline(null, null, null, null, pagination_next);
+
+                if (EnableFullRawTracert)
+                    SetStatus("response body: " + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
+
+                if (adListBitcoins is null)
+                {
+                    SetStatus("Ошибка получения данных от сервера", StatusTypes.ErrorStatus);
+                    SetStatus("HttpRequestStatus: " + lb_api.api_raw.HttpRequestStatus, StatusTypes.ErrorStatus);
+                    SetStatus("Ещё одна попытка...");
+
+                    continue;
+                }
+
+                SetStatus("Получено [" + adListBitcoins.data.ad_list.Count() + "] объявлений");
+
+                pagination_next = adListBitcoins.pagination?.next;
+                IEnumerable<AdListItem> ie_ads = adListBitcoins.data.ad_list.Where(x => x.data.get_min_amount_as_double() <= SumFilter && x.data.profile.feedback_score >= FilterProfileFeedbackScore && x.data.get_temp_price() > 0);
+                if (ie_ads != null)
+                {
+                    SetStatus("После применения фильтров к объявлениям осталось [" + ie_ads.Count() + "] объявлений");
+
+                    buy_bitcoin_online.AddRange(ie_ads.ToList());
+                }
+            }
+
+            if (buy_bitcoin_online.Count() == 0)
+            {
+                SetStatus("Ошибка получения курса. Ни одного предложения.", StatusTypes.ErrorStatus);
+                SetStatus(null);
+                return;
+            }
+
+            BtcRateLocalbitcoinsModel btcRate = new BtcRateLocalbitcoinsModel() { CountRates = buy_bitcoin_online.Count, DateCreate = DateTime.Now, Information = "Снимок состяния Localbitcoins qiwi", MaxRate = double.MinValue, MinRate = double.MaxValue };
+            foreach (AdListItem ad_item in buy_bitcoin_online.Take(3))
+            {
+                btcRate.MaxRate = Math.Max(btcRate.MaxRate, ad_item.data.get_temp_price());
+                btcRate.MinRate = Math.Min(btcRate.MinRate, ad_item.data.get_temp_price());
+            }
             lock (RatesBTC)
             {
-                List<AdListItem> buy_bitcoin_online = adListBitcoins.data.ad_list.Where(x => x.data.get_min_amount_as_double() <= SumFilter && x.data.profile.feedback_score >= FilterProfileFeedbackScore && x.data.get_temp_price() > 0) as List<AdListItem>;
-                if (buy_bitcoin_online is null)
-                    buy_bitcoin_online = new List<AdListItem>();
-
-                string pagination_next = adListBitcoins.pagination?.next;
-                while (adListBitcoins is null || (buy_bitcoin_online.Count() < 3 && !string.IsNullOrWhiteSpace(pagination_next)))
-                {
-                    adListBitcoins = lb_api.BuyBitcoinsOnline(null, null, null, null, pagination_next);
-
-                    if (EnableFullRawTracert)
-                        SetStatus("response body: " + Environment.NewLine + lb_api.api_raw.responsebody, StatusTypes.DebugStatus);
-
-                    if (adListBitcoins is null)
-                    {
-                        SetStatus("Ошибка получения данных от сервера", StatusTypes.ErrorStatus);
-                        SetStatus("HttpRequestStatus: " + lb_api.api_raw.HttpRequestStatus, StatusTypes.ErrorStatus);
-                        SetStatus("Ещё одна попытка...");
-
-                        continue;
-                    }
-
-                    SetStatus("Получено [" + adListBitcoins.data.ad_list.Count() + "] объявлений");
-
-                    pagination_next = adListBitcoins.pagination?.next;
-                    IEnumerable<AdListItem> ie_ads = adListBitcoins.data.ad_list.Where(x => x.data.get_min_amount_as_double() <= SumFilter && x.data.profile.feedback_score >= FilterProfileFeedbackScore && x.data.get_temp_price() > 0);
-                    if (ie_ads != null)
-                    {
-                        SetStatus("После применения фильтров к объявлениям осталось [" + ie_ads.Count() + "] объявлений");
-
-                        buy_bitcoin_online.AddRange(ie_ads.ToList());
-                    }
-                }
-
-                if (buy_bitcoin_online.Count() == 0)
-                {
-                    SetStatus("Ошибка получения курса. Ни одного предложения.", StatusTypes.ErrorStatus);
-                    SetStatus(null);
-                    return;
-                }
-
-                BtcRateLocalbitcoinsModel btcRate = new BtcRateLocalbitcoinsModel() { CountRates = buy_bitcoin_online.Count, DateCreate = DateTime.Now, Information = "Снимок состяния Localbitcoins qiwi", MaxRate = double.MinValue, MinRate = double.MaxValue };
-                foreach (AdListItem ad_item in buy_bitcoin_online.Take(3))
-                {
-                    btcRate.MaxRate = Math.Max(btcRate.MaxRate, ad_item.data.get_temp_price());
-                    btcRate.MinRate = Math.Min(btcRate.MinRate, ad_item.data.get_temp_price());
-                }
-
                 RatesBTC.Add(btcRate);
+
                 RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>(RatesBTC.OrderBy(x => x.DateCreate));
                 if (MaxSizeTransit < RatesBTC.Count)
                     RatesBTC = new ConcurrentBag<BtcRateLocalbitcoinsModel>(RatesBTC.Skip(RatesBTC.Count - MaxSizeTransit));
-                // public ConcurrentBag<BtcRateLocalbitcoinsModel> RatesBTC
-                SetStatus(null);
-
-                SetStatus("В памяти зафиксирована информация Localbitcoins RatesBTC[" + RatesBTC.Count + "]");
-
-                CurrentBtcRate = (btcRate.MaxRate + btcRate.MinRate) / 2;
-                SetStatus(null);
             }
+
+            SetStatus(null);
+
+            SetStatus("В памяти зафиксирована информация Localbitcoins RatesBTC[" + RatesBTC.Count + "]");
+
+            CurrentBtcRate = (btcRate.MaxRate + btcRate.MinRate) / 2;
+            SetStatus(null);
         }
 
         public override void InvokeSchedule()
@@ -192,7 +193,7 @@ namespace LocalbitcoinsBtcRateSingletonAsyncScheduler
             if (AllowedPaymentMethods is null || AllowedPaymentMethods.Count() == 0)
             {
                 SetStatus("Методы оплаты не загружены. Вызов планировщика невозможен", StatusTypes.ErrorStatus);
-                if(string.IsNullOrWhiteSpace(ScheduleStatus))
+                if (string.IsNullOrWhiteSpace(ScheduleStatus))
                 {
                     SetStatus("Повторная попытка загрузка методов оплаты");
                     UpdatePaymentMethodsAsync();

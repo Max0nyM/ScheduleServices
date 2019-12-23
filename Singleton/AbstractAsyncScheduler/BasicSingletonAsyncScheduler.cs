@@ -196,6 +196,11 @@ namespace AbstractAsyncScheduler
 
         private ILogger AppLogger { get; set; }
 
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="loggerFactory">ILoggerFactory</param>
+        /// <param name="set_schedule_pause_period">Время паузы между выполнением задач</param>
         public BasicSingletonScheduler(ILoggerFactory loggerFactory, int set_schedule_pause_period)
         {
             SchedulePausePeriod = set_schedule_pause_period;
