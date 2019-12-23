@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\BitcoinAverageApi\BitcoinAverageApi.csproj" />
+    <ProjectReference Include="..\..\..\LocalBitcoins-API\LocalBitcoins-API.csproj" />
     <ProjectReference Include="..\AbstractAsyncScheduler\AbstractAsyncScheduler.csproj" />
   </ItemGroup>
 
