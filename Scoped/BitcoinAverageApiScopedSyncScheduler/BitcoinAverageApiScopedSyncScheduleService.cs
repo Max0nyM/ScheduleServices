@@ -1,6 +1,5 @@
 ﻿using AbstractAsyncScheduler;
 using AbstractSyncScheduler;
-using BitcoinAverageApi.Model;
 using BitcoinAverageApiSingletonAsyncScheduler;
 using LocalbitcoinsBtcRateSingletonAsyncScheduler;
 using MetadataEntityModel.Models;
@@ -8,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 
-namespace BitcoinAverageApiScopedSyncScheduler
-{//BitcoinAverageApiSingletonAsyncScheduleService
+namespace CoinGeckoApiScopedSyncScheduler
+{
     public class BitcoinAverageApiScopedSyncScheduleService : BasicScopedSyncScheduler
     {
         public BitcoinAverageApiSingletonAsyncScheduleService AsyncBitcoinAverageBtcRateScheduleService => (BitcoinAverageApiSingletonAsyncScheduleService)BasicSingletonService;
@@ -47,8 +46,7 @@ namespace BitcoinAverageApiScopedSyncScheduler
                 }
                 AsyncBitcoinAverageBtcRateScheduleService.RatesBTC.Clear();
             }
-            //if (AsyncScheduleService.LastChangeStatusDateTime.AddSeconds(AsyncScheduleService.SchedulePausePeriod) < DateTime.Now)
-            //    AsyncScheduleService.InvokeAsyncSchedule();
+            
             AsyncBitcoinAverageBtcRateScheduleService.SetStatus(null);
         }
     }
